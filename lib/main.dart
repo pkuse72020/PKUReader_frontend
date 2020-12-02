@@ -12,10 +12,10 @@ void main() {
 /// design is finished.
 Widget newPageListItem(BuildContext context, String name, Widget widget) {
   return ListTile(
-    title: Text('Test'),
+    title: Text(name),
     onTap: () {
       Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => Test(),
+        builder: (context) => widget,
       ));
     },
   );
