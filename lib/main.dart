@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pkureader_frontend/local.dart';
 import 'package:provider/provider.dart';
 
-/// This is the temporary example account
+/// The temporary example account.
 final user = Account(id: 'admin@example.com', name: '示例用户');
 
 enum SubscrType { author, field }
