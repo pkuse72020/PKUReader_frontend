@@ -3,7 +3,7 @@
 /// It it used before the integration of the back-end.
 
 // These values are taken from PKU Helper Hole #1264962.
-final authors = [
+final rssSources = [
   'Alice',
   'Bob',
   'Carol',

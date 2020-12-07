@@ -15,8 +15,7 @@ import 'local.dart';
 /// The temporary example account.
 final user = Account(id: 'admin@example.com', name: '示例用户');
 
-
-enum SubscrType { author, field }
+enum SubscrType { rss, article }
 
 void main() {
   runApp(ChangeNotifierProvider(
@@ -54,18 +53,13 @@ class PkuReader extends StatelessWidget {
               AccountManager(
                 user: user,
               )),
-          newPageListItem(
-              context,
-              '新闻浏览',
-              BrowseNews()
-          ),
+          newPageListItem(context, '新闻浏览', BrowseNews()),
           newPageListItem(
               context,
               '新闻阅读',
               ReadNews(
-                title:'阔别900余天，图书馆东楼今日重启',
-              )
-          )
+                title: '阔别900余天，图书馆东楼今日重启',
+              ))
         ],
       ),
     );
@@ -107,35 +101,35 @@ class Test extends StatelessWidget {
 class Account extends ChangeNotifier {
   final String id;
   final String name;
-  final favFields = List<String>();
-  final subscrAuthors = List<String>();
+  final favArticles = List<String>();
+  final subscrRssSrcs = List<String>();
 
   Account({this.id, this.name});
 
-  void addField(String field) {
-    favFields.add(field);
+  void addArticle(String article) {
+    favArticles.add(article);
     notifyListeners();
   }
 
-  void removeField(String field) {
-    favFields.removeWhere((element) => element == field);
+  void removeArticle(String article) {
+    favArticles.removeWhere((element) => element == article);
     notifyListeners();
   }
 
-  void addAuthor(String author) {
-    subscrAuthors.add(author);
+  void addSource(String source) {
+    subscrRssSrcs.add(source);
     notifyListeners();
   }
 
-  void removeAuthor(String field) {
-    subscrAuthors.removeWhere((element) => element == field);
+  void removeSource(String source) {
+    subscrRssSrcs.removeWhere((element) => element == source);
     notifyListeners();
   }
 }
 
 /// An account management page.
 ///
-/// It is used to manage subscribed authors and favorite fields. It also allows
+/// It is used to manage subscribed sources and favorite articles. It also allows
 /// the user to submit an RSS source.
 class AccountManager extends StatelessWidget {
   final Account user;
@@ -155,8 +149,8 @@ class AccountManager extends StatelessWidget {
             child: Text(user == null ? '未登录\n' : user.name + '\n' + user.id),
           ),
           Divider(),
-          newPageListItem(context, '已订阅发布方', SubscrManager(SubscrType.author)),
-          newPageListItem(context, '已关注领域', SubscrManager(SubscrType.field)),
+          newPageListItem(context, '已订阅 RSS 源', SubscrManager(SubscrType.rss)),
+          newPageListItem(context, '已收藏文章', SubscrManager(SubscrType.article)),
           newPageListItem(context, '发布', SubmitPage()),
         ],
       ),
@@ -166,18 +160,18 @@ class AccountManager extends StatelessWidget {
 
 /// A subscription manager.
 ///
-/// The user can use this to discover valid authors and subscribe to them. The
-/// author list is now hard-coded into the app, but we have to fetch the author
-/// list from the server after the integration of the back-end.
+/// The user can use this to discover valid RSS sources and subscribe to them.
+/// The RSS source list is now hard-coded into the app, but we have to fetch the
+/// RSS source list from the server after the integration of the back-end.
 ///
-/// Due to the similarity of subscriptions and favorite fields, we choose to use
-/// the same class to handle both of them.
+/// Due to the similarity of subscriptions and favorite articles, we choose to
+/// use the same class to handle both of them.
 class SubscrManager extends StatelessWidget {
   /// The subscription type.
   ///
-  /// If the instance handles author subscriptions, it has the value
-  /// [SubscrType.author]. Otherwise, it handles favorite fields, and has the
-  /// value [SubscrType.field].
+  /// If the instance handles RSS source subscriptions, it has the value
+  /// [SubscrType.rss]. Otherwise, it handles favorite articles, and has the
+  /// value [SubscrType.article].
   final type;
 
   SubscrManager(this.type);
@@ -186,25 +180,31 @@ class SubscrManager extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(type == SubscrType.author ? '已订阅发布方' : '已关注领域'),
+        title: Text(type == SubscrType.rss ? '已订阅 RSS 源' : '已收藏文章'),
       ),
       body: Consumer<Account>(
         builder: (context, value, child) => ListView(
-            children: type == SubscrType.author
-                ? user.subscrAuthors
+            children: type == SubscrType.rss
+                ? user.subscrRssSrcs
                     .map((e) => ListTile(
                           title: Text(e),
-                          onTap: () {
-                            user.removeAuthor(e);
-                          },
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () => user.removeSource(e),
+                          ),
                         ))
                     .toList()
-                : user.favFields
+                : user.favArticles
                     .map((e) => ListTile(
+                          contentPadding: EdgeInsets.all(12.0),
                           title: Text(e),
-                          onTap: () {
-                            user.removeField(e);
-                          },
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () => user.removeArticle(e),
+                          ),
+                          onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => ReadNews(title: e))),
                         ))
                     .toList()),
       ),
@@ -224,9 +224,9 @@ class SubscrManager extends StatelessWidget {
 class NewSubscrPage extends StatefulWidget {
   /// The subscription type.
   ///
-  /// If the instance handles author subscriptions, it has the value
-  /// [SubscrType.author]. Otherwise, it handles favorite fields, and has the
-  /// value [SubscrType.field].
+  /// If the instance handles RSS source subscriptions, it has the value
+  /// [SubscrType.rss]. Otherwise, it handles favorite articles, and has the
+  /// value [SubscrType.article].
   final type;
 
   NewSubscrPage(this.type);
@@ -257,7 +257,7 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.type == SubscrType.author ? '订阅新发布方' : '关注新领域'),
+        title: Text(widget.type == SubscrType.rss ? '订阅新 RSS 源' : '收藏新文章'),
       ),
       body: Column(
         children: [
@@ -271,27 +271,27 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
           Expanded(
               child: Consumer<Account>(
             builder: (context, value, child) => ListView(
-                children: widget.type == SubscrType.author
-                    ? authors
+                children: widget.type == SubscrType.rss
+                    ? rssSources
                         .where(
-                            (element) => !user.subscrAuthors.contains(element))
+                            (element) => !user.subscrRssSrcs.contains(element))
                         .where((element) => element
                             .toLowerCase()
                             .contains(controller.text.toLowerCase()))
                         .map((e) => ListTile(
                               title: Text(e),
                               onTap: () {
-                                user.addAuthor(e);
+                                user.addSource(e);
                               },
                             ))
                         .toList()
-                    : fields
-                        .where((element) => !user.favFields.contains(element))
+                    : news_dict.keys
+                        .where((element) => !user.favArticles.contains(element))
                         .where((element) => element.contains(controller.text))
                         .map((e) => ListTile(
                               title: Text(e),
                               onTap: () {
-                                user.addField(e);
+                                user.addArticle(e);
                               },
                             ))
                         .toList()),
@@ -341,13 +341,12 @@ class _SubmitPageState extends State<SubmitPage> {
   }
 }
 
-class BrowseNews extends StatefulWidget{
-
+class BrowseNews extends StatefulWidget {
   @override
-  _BrowseNewsState createState()=>_BrowseNewsState();
+  _BrowseNewsState createState() => _BrowseNewsState();
 }
 
-class _BrowseNewsState extends State<BrowseNews>{
+class _BrowseNewsState extends State<BrowseNews> {
   final controller = TextEditingController();
   @override
   void dispose() {
@@ -371,69 +370,58 @@ class _BrowseNewsState extends State<BrowseNews>{
       body: Center(
         child: Container(
           padding: EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: controller,
-                  decoration: InputDecoration(hintText: '搜索'),
-                ),
+          child: Column(children: [
+            Container(
+              padding: EdgeInsets.all(8.0),
+              child: TextField(
+                controller: controller,
+                decoration: InputDecoration(hintText: '搜索'),
               ),
-              // news_dict.keys.map<Widget>((key)=>Container(child:Text(key))).toList()
-              Expanded(
-                  child: ListView(
-                    children:news_dict
-                        .keys
-                        .map<Widget>(
-                            (element)=>ListTile(
-                                title:Text(element),
-                                onTap:(){
-                                  Navigator.push(context,
-                                  new MaterialPageRoute(builder:(context)
-                                  => new ReadNews(title:element)));
-                                },
-                            )
-                    ).toList()
-                  )
-                )
-             ]
-          ),
+            ),
+            // news_dict.keys.map<Widget>((key)=>Container(child:Text(key))).toList()
+            Expanded(
+                child: ListView(
+                    children: news_dict.keys
+                        .map<Widget>((element) => ListTile(
+                              title: Text(element),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    new MaterialPageRoute(
+                                        builder: (context) =>
+                                            new ReadNews(title: element)));
+                              },
+                            ))
+                        .toList()))
+          ]),
         ),
       ),
     );
   }
 }
 
-class ReadNews extends StatefulWidget{
-
+class ReadNews extends StatefulWidget {
   final title;
   ReadNews({this.title});
 
   // final title='阔别900余天，图书馆东楼今日重启';
   @override
-  _ReadNewsState createState()=>_ReadNewsState();
+  _ReadNewsState createState() => _ReadNewsState();
 }
 
-class _ReadNewsState extends State<ReadNews>{
+class _ReadNewsState extends State<ReadNews> {
   @override
-  void initState(){
+  void initState() {
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text(widget.title??"")),
-        body:Container(
-            child:Text(news_dict[widget.title]??"")
-        )
-    );
+        appBar: AppBar(title: Text(widget.title ?? "")),
+        body: Container(child: Text(news_dict[widget.title] ?? "")));
   }
 }
-
-
-
 
 class LoginPage extends StatefulWidget {
   @override
@@ -441,16 +429,15 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final formKey = GlobalKey<FormState>();
-  String account ='', password='';
+  String account = '', password = '';
   bool isObscure = true;
-  bool isEmpty =false;
+  bool isEmpty = false;
   final accountController = TextEditingController();
   final pwdController = TextEditingController();
 
   @override
-  void initState(){
+  void initState() {
     accountController.addListener(() {
       // 监听文本框输入变化，当有内容的时候，显示尾部清除按钮，否则不显示
       if (accountController.text.length > 0) {
@@ -458,36 +445,35 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         isEmpty = false;
       }
-      setState(() {
-
-      });
+      setState(() {});
     });
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Form(
-            key: formKey,
-            child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: 22.0),
-              children: <Widget>[
-                SizedBox(
-                  height: kToolbarHeight,
-                ),
-                buildTitle(),
-                SizedBox(height: 60.0),
-                buildAccount(),
-                SizedBox(height: 30.0),
-                buildPassword(context),
-                buildForgetPassword(context),
-                SizedBox(height: 60.0),
-                buildLoginButton(context),
-                SizedBox(height: 10.0),
-                buildRegister(context),
-              ],
+      body: Form(
+        key: formKey,
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 22.0),
+          children: <Widget>[
+            SizedBox(
+              height: kToolbarHeight,
             ),
+            buildTitle(),
+            SizedBox(height: 60.0),
+            buildAccount(),
+            SizedBox(height: 30.0),
+            buildPassword(context),
+            buildForgetPassword(context),
+            SizedBox(height: 60.0),
+            buildLoginButton(context),
+            SizedBox(height: 10.0),
+            buildRegister(context),
+          ],
         ),
+      ),
     );
   }
 
@@ -570,16 +556,14 @@ class _LoginPageState extends State<LoginPage> {
         }
       },
       decoration: InputDecoration(
-          labelText: 'Password',
-          suffixIcon: IconButton(
-              icon: Icon(
-                (isObscure) ? Icons.visibility_off : Icons.visibility
-              ),
-              onPressed: () {
-                setState(() {
-                  isObscure = !isObscure;
-                });
-              }),
+        labelText: 'Password',
+        suffixIcon: IconButton(
+            icon: Icon((isObscure) ? Icons.visibility_off : Icons.visibility),
+            onPressed: () {
+              setState(() {
+                isObscure = !isObscure;
+              });
+            }),
       ),
     );
   }
@@ -594,18 +578,19 @@ class _LoginPageState extends State<LoginPage> {
         }
       },
       decoration: InputDecoration(
-        labelText: 'Account',
-          suffixIcon:(isEmpty)?IconButton(
-              icon: Icon(
-                Icons.clear,
-              ),
-              onPressed: () {
-                setState(() {
-                  accountController.clear();
-                  accountController.clear();
-                });
-              }):null
-      ),
+          labelText: 'Account',
+          suffixIcon: (isEmpty)
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      accountController.clear();
+                      accountController.clear();
+                    });
+                  })
+              : null),
     );
   }
 
