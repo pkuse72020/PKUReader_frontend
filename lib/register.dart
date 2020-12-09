@@ -1,21 +1,29 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'register.dart';
+//import 'package:pkureader_frontend/local.dart';
+//import 'package:provider/provider.dart';
 
-class LoginPage extends StatefulWidget {
+import 'local.dart';
+
+
+
+class RegisterPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
+
   final formKey = GlobalKey<FormState>();
-  String account = '', password = '';
+  String account ='', password='',repassword='';
   bool isObscure = true;
-  bool isEmpty = false;
+  bool isEmpty =false;
   final accountController = TextEditingController();
   final pwdController = TextEditingController();
+  final repwdController = TextEditingController();
 
   @override
-  void initState() {
+  void initState(){
     accountController.addListener(() {
       // 监听文本框输入变化，当有内容的时候，显示尾部清除按钮，否则不显示
       if (accountController.text.length > 0) {
@@ -23,11 +31,12 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         isEmpty = false;
       }
-      setState(() {});
+      setState(() {
+
+      });
     });
     super.initState();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,18 +53,19 @@ class _LoginPageState extends State<LoginPage> {
             buildAccount(),
             SizedBox(height: 30.0),
             buildPassword(context),
-            buildForgetPassword(context),
+            SizedBox(height: 30.0),
+            buildRePassword(context),
             SizedBox(height: 60.0),
-            buildLoginButton(context),
+            buildRegisterButton(context),
             SizedBox(height: 10.0),
-            buildRegister(context),
+            buildLogin(context),
           ],
         ),
       ),
     );
   }
 
-  Align buildRegister(BuildContext context) {
+  Align buildLogin(BuildContext context) {
     return Align(
       alignment: Alignment.center,
       child: Padding(
@@ -63,15 +73,14 @@ class _LoginPageState extends State<LoginPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('没有账号？'),
+            Text('已有账号？'),
             GestureDetector(
               child: Text(
-                '点击注册',
+                '点击登陆',
                 style: TextStyle(color: Colors.blue),
               ),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => RegisterPage()));
+                Navigator.pop(context);
               },
             ),
           ],
@@ -80,14 +89,14 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Align buildLoginButton(BuildContext context) {
+  Align buildRegisterButton(BuildContext context) {
     return Align(
       child: SizedBox(
         height: 45.0,
         width: 270.0,
         child: RaisedButton(
           child: Text(
-            'Login',
+            'Register',
             style: Theme.of(context).primaryTextTheme.headline,
           ),
           color: Colors.blue[300],
@@ -104,24 +113,34 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Padding buildForgetPassword(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: FlatButton(
-          child: Text(
-            '忘记密码？',
-            style: TextStyle(fontSize: 14.0, color: Colors.grey),
-          ),
-          onPressed: () {
-            //TODO 可能没这功能
-            //Navigator.pop(context);
-          },
-        ),
+  TextFormField buildRePassword(BuildContext context) {
+    return TextFormField(
+      controller: repwdController,
+      //onSaved: (String value) => repassword = value,
+      //obscureText: isObscure,
+      obscureText: true,
+      validator: (String value) {
+        if (value.isEmpty) {
+          return '请输入密码';
+        }else if(value!=pwdController.text){
+          return '两次输入的密码不一致';
+        }
+      },
+      decoration: InputDecoration(
+        labelText: 'Password',
+//        suffixIcon: IconButton(
+//            icon: Icon(
+//                (isObscure) ? Icons.visibility_off : Icons.visibility
+//            ),
+//            onPressed: () {
+//              setState(() {
+//                isObscure = !isObscure;
+//              });
+//            }),
       ),
     );
   }
+
 
   TextFormField buildPassword(BuildContext context) {
     return TextFormField(
@@ -136,7 +155,9 @@ class _LoginPageState extends State<LoginPage> {
       decoration: InputDecoration(
         labelText: 'Password',
         suffixIcon: IconButton(
-            icon: Icon((isObscure) ? Icons.visibility_off : Icons.visibility),
+            icon: Icon(
+                (isObscure) ? Icons.visibility_off : Icons.visibility
+            ),
             onPressed: () {
               setState(() {
                 isObscure = !isObscure;
@@ -157,18 +178,18 @@ class _LoginPageState extends State<LoginPage> {
       },
       decoration: InputDecoration(
           labelText: 'Account',
-          suffixIcon: (isEmpty)
-              ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      accountController.clear();
-                      accountController.clear();
-                    });
-                  })
-              : null),
+          suffixIcon:(isEmpty)?IconButton(
+              icon: Icon(
+                Icons.clear,
+              ),
+              onPressed: () {
+                setState(() {
+                  accountController.clear();
+                  pwdController.clear();
+                  repwdController.clear();
+                });
+              }):null
+      ),
     );
   }
 
@@ -176,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
     return Padding(
       padding: EdgeInsets.all(8.0),
       child: Text(
-        'Login',
+        'Register',
         style: TextStyle(fontSize: 48.0),
       ),
     );
