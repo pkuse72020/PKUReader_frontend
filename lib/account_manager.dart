@@ -85,7 +85,8 @@ class SubscrManager extends StatelessWidget {
                           ),
                           onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
-                                  builder: (context) => ReadNews(title: e))),
+                                  builder: (context) =>
+                                      ReadNews(title: e.title))),
                         ))
                     .toList()),
       ),
