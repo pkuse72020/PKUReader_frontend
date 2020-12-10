@@ -193,34 +193,57 @@ class SubmitPage extends StatefulWidget {
 }
 
 class _SubmitPageState extends State<SubmitPage> {
-  final controller = TextEditingController();
+  String sourceName;
+  String url;
+  final _key = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('发布')),
         body: Center(
-            child: Container(
-          padding: EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  decoration: InputDecoration(hintText: 'RSS URL'),
-                ),
-              ),
-              TextButton(
-                  onPressed: () {
-                    // We have to interact with the back-end in the future, but
-                    // since the back-end is not available now, we do nothing
-                    // here.
+            child: Form(
+                key: _key,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TextFormField(
+                        decoration: InputDecoration(hintText: 'RSS 源名称'),
+                        validator: (value) {
+                          if (value.isEmpty) return '请输入源名称';
+                          return null;
+                        },
+                        onSaved: (newValue) => sourceName = newValue,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16.0),
+                      child: TextFormField(
+                        decoration: InputDecoration(hintText: 'RSS URL'),
+                        validator: (value) {
+                          if (value.isEmpty) return '请输入 RSS URL';
+                          return null;
+                        },
+                        onSaved: (newValue) => url = newValue,
+                      ),
+                    ),
+                    TextButton(
+                        onPressed: () {
+                          if (_key.currentState.validate()) {
+                            _key.currentState.save();
 
-                    controller.clear();
-                  },
-                  child: Text('提交'))
-            ],
-          ),
-        )));
+                            // We have to interact with the back-end in the
+                            // future, but since the back-end is not available
+                            // now, we do nothing here.
+
+                            _key.currentState.reset();
+                          }
+                        },
+                        child: Text('提交'))
+                  ],
+                  mainAxisSize: MainAxisSize.min,
+                ))));
   }
 }
