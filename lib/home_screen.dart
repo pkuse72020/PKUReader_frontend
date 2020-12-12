@@ -1,9 +1,11 @@
 import 'app_theme.dart';
 import 'util.dart';
 import 'non_ui.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:pkureader_frontend/account/account_manager.dart';
+import 'package:pkureader_frontend/news/hl_html.dart';
 import 'package:pkureader_frontend/news/hlnews.dart';
 import 'package:pkureader_frontend/news/news.dart';
 import 'package:pkureader_frontend/test/test_page.dart';
@@ -59,7 +61,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               ReadNews(
                 title: '阔别900余天，图书馆东楼今日重启',
               )),
-          newPageListItem(context, '有知识的新闻阅读', HLNews())
+          newPageListItem(context, '有知识的新闻阅读', HLNews()),
+          newPageListItem(
+              context,
+              '网页加高亮',
+              HLHtml(title: '网页加高亮'
+              )),
         ],
       ),
     );

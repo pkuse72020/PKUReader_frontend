@@ -24,6 +24,8 @@ dependencies:
   flutter:
     sdk: flutter
   highlight_text: ^0.7.2
+  flutter_html:
+    path: ./lib/flutter_html
 
   provider: ^3.0.0
 
