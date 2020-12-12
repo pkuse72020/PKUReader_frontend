@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'local.dart';
-import 'news.dart';
-import 'non_ui.dart';
-import 'util.dart';
+import '../local.dart';
+import '../news/news.dart';
+import '../non_ui.dart';
+import '../util.dart';
 
 enum SubscrType { rss, article }
 

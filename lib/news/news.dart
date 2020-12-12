@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'local.dart';
+import '../local.dart';
 
 class BrowseNews extends StatefulWidget {
   @override

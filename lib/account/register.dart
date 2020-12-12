@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 //import 'package:pkureader_frontend/local.dart';
 //import 'package:provider/provider.dart';
 
-import 'local.dart';
+import '../local.dart';
 
 
 
