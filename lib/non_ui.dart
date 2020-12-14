@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart'as http;
+import 'dart:convert' as convert;
 /// Non-UI classes.
 
 /// The temporary example account.
-final user = Account(id: 'admin@example.com', name: '示例用户');
+Account user = null;
+const String loginURL="http://39.98.93.128:5000/user/login";
+const String registerURL="http://39.98.93.128:5000/user/signup";
 
 /// An account data structure.
 ///
@@ -11,14 +14,16 @@ final user = Account(id: 'admin@example.com', name: '示例用户');
 /// use the main memory or the local storage to store the user data. After the
 /// integration of the back-end, this should be constructed using data fetched
 /// from the server.
+
 class Account extends ChangeNotifier {
-  final String id;
-  final String name;
+  final String token;
+  final String userName;
+  final String userId;
   final favArticles = List<Article>();
   final subscrRssSrcs = List<Source>();
   final newsCache = List<Article>();
 
-  Account({this.id, this.name});
+  Account({this.token, this.userName,this.userId});
 
   // Those return types may change in the future, because we may need to return
   // a status (of whether the operation was successful).
@@ -52,12 +57,38 @@ class Account extends ChangeNotifier {
     // TODO Implement this.
   }
 
-  static void logIn(String userName, String password) {
+  static void logIn(String userName, String password) async{
     // TODO Implement this.
+    var body={"username": userName, "password": password};
+    var response=await http.post(loginURL,body:body);
+    if (response.statusCode == 200) {
+      var jsonResponse = convert.jsonDecode(response.body);
+      String state=jsonResponse["state"];
+      if(state=='failed'){
+        //print(jsonResponse["description"]);
+        throw new Exception(jsonResponse["description"]);
+      }else{
+        Account account=Account(token:jsonResponse["token"],userName:userName,userId:jsonResponse["UserId"]);
+        user=account;
+        print(account.token);
+      }
+    }
   }
 
-  static void register(String userName, String password) {
+  static void register(String userName, String password) async {
     // TODO Implement this.
+    var body={"username": userName, "password": password};
+    var response=await http.post(registerURL,body:body);
+    if (response.statusCode == 200) {
+      var jsonResponse = convert.jsonDecode(response.body);
+      //print(jsonResponse);
+      String state=jsonResponse["state"];
+      if(state=='failed'){
+        throw new Exception(jsonResponse["description"]);
+      }else{
+        print(jsonResponse["UserId"]);
+      }
+    }
   }
 
   static void logOut() {

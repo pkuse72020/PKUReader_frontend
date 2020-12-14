@@ -27,7 +27,7 @@ class AccountManager extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.all(16.0),
-            child: Text(user == null ? '未登录\n' : user.name + '\n' + user.id),
+            child: Text(user == null ? '未登录\n' : user.userName + '\n' + user.userId),
           ),
           Divider(),
           newPageListItem(context, '已订阅 RSS 源', SubscrManager(SubscrType.rss)),

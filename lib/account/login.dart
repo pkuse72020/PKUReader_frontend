@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register.dart';
+import '../non_ui.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -26,6 +27,28 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {});
     });
     super.initState();
+  }
+
+  void showAlertDialog(dynamic description){
+    showDialog(
+      context: context,
+      child: new AlertDialog(
+        title: Text("Failed"),
+        content: Text(description.toString()),
+        actions: [
+          new FlatButton(
+            child: const Text("Ok"),
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop();
+              setState(() {
+                accountController.clear();
+                pwdController.clear();
+              });
+            }
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -63,14 +86,14 @@ class _LoginPageState extends State<LoginPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('没有账号？'),
+            Text('没有账号?'),
             GestureDetector(
               child: Text(
                 '点击注册',
                 style: TextStyle(color: Colors.blue),
               ),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
                     builder: (BuildContext context) => RegisterPage()));
               },
             ),
@@ -95,7 +118,26 @@ class _LoginPageState extends State<LoginPage> {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
               //TODO 执行登录方法
-              print('email:$account , password:$password');
+              //同步调用
+//              try{
+//                Account.logIn(account,password);
+//              }
+//              catch(e){
+//                print(e.toString());
+//              }
+              //异步调用
+              bool connected=true;
+              Future.delayed(Duration(seconds: 1),()=>Account.logIn(account,password))
+                  .catchError((e){
+                    showAlertDialog(e);
+                    connected=false;
+                  })
+                  .whenComplete((){
+                    if(connected){
+                      //TODO 回到主界面
+                      Navigator.of(context).pop();
+                    }
+                  });
             }
           },
           shape: StadiumBorder(),
@@ -159,15 +201,15 @@ class _LoginPageState extends State<LoginPage> {
           labelText: 'Account',
           suffixIcon: (isEmpty)
               ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      accountController.clear();
-                      accountController.clear();
-                    });
-                  })
+              icon: Icon(
+                Icons.clear,
+              ),
+              onPressed: () {
+                setState(() {
+                  accountController.clear();
+                  pwdController.clear();
+                });
+              })
               : null),
     );
   }

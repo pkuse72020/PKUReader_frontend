@@ -1,11 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-//import 'package:pkureader_frontend/local.dart';
-//import 'package:provider/provider.dart';
-
-import '../local.dart';
-
-
+import 'login.dart';
+import '../non_ui.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -15,7 +10,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
 
   final formKey = GlobalKey<FormState>();
-  String account ='', password='',repassword='';
+  String account ='', password='';
   bool isObscure = true;
   bool isEmpty =false;
   final accountController = TextEditingController();
@@ -37,6 +32,30 @@ class _RegisterPageState extends State<RegisterPage> {
     });
     super.initState();
   }
+
+  void showAlertDialog(dynamic description){
+    showDialog(
+      context: context,
+      child: new AlertDialog(
+        title: Text("Failed"),
+        content: Text(description.toString()),
+        actions: [
+          new FlatButton(
+              child: const Text("Ok"),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+                setState(() {
+                  accountController.clear();
+                  pwdController.clear();
+                  repwdController.clear();
+                });
+              }
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,14 +92,15 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('已有账号？'),
+            Text('已有账号?'),
             GestureDetector(
               child: Text(
                 '点击登陆',
                 style: TextStyle(color: Colors.blue),
               ),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (BuildContext context) => LoginPage()));
               },
             ),
           ],
@@ -104,7 +124,18 @@ class _RegisterPageState extends State<RegisterPage> {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
               //TODO 执行登录方法
-              print('email:$account , password:$password');
+              bool connected=true;
+              Future.delayed(Duration(seconds: 1),()=>Account.register(account,password))
+                  .catchError((e){
+                    showAlertDialog(e);
+                    connected=false;
+                  })
+                  .whenComplete((){
+                    if(connected){
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (BuildContext context) => LoginPage()));
+                    }
+                  });
             }
           },
           shape: StadiumBorder(),
@@ -127,7 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       },
       decoration: InputDecoration(
-        labelText: 'Password',
+        labelText: 'Confirm Password',
 //        suffixIcon: IconButton(
 //            icon: Icon(
 //                (isObscure) ? Icons.visibility_off : Icons.visibility
