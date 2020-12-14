@@ -5,7 +5,8 @@ import 'dart:convert' as convert;
 /// Non-UI classes.
 
 /// The temporary example account.
-Account user = null;
+// Account user = null;
+Account user = Account(token:"example", userName: "PKUer", userId: "0100010");
 const String loginURL = "http://39.98.93.128:5000/user/login";
 const String registerURL = "http://39.98.93.128:5000/user/signup";
 
@@ -23,11 +24,19 @@ class Account extends ChangeNotifier {
   final favArticles = List<Article>();
   final subscrRssSrcs = List<Source>();
   final newsCache = List<Article>();
+  var isPressFavButton = true;
 
   Account({this.token, this.userName, this.userId});
 
   // Those return types may change in the future, because we may need to return
   // a status (of whether the operation was successful).
+
+  bool existArticle(Article article){
+    if(favArticles.any((element) => element.title == article.title)) {
+      return true;
+    }
+    return false;
+  }
 
   void addArticle(Article article) {
     favArticles.add(article);
@@ -35,7 +44,7 @@ class Account extends ChangeNotifier {
   }
 
   void removeArticle(Article article) {
-    favArticles.removeWhere((element) => element == article);
+    favArticles.removeWhere((element) => element.title == article.title);
     notifyListeners();
   }
 
