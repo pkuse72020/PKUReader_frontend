@@ -8,17 +8,16 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-
   final formKey = GlobalKey<FormState>();
-  String account ='', password='';
+  String account = '', password = '';
   bool isObscure = true;
-  bool isEmpty =false;
+  bool isEmpty = false;
   final accountController = TextEditingController();
   final pwdController = TextEditingController();
   final repwdController = TextEditingController();
 
   @override
-  void initState(){
+  void initState() {
     accountController.addListener(() {
       // 监听文本框输入变化，当有内容的时候，显示尾部清除按钮，否则不显示
       if (accountController.text.length > 0) {
@@ -26,14 +25,12 @@ class _RegisterPageState extends State<RegisterPage> {
       } else {
         isEmpty = false;
       }
-      setState(() {
-
-      });
+      setState(() {});
     });
     super.initState();
   }
 
-  void showAlertDialog(dynamic description){
+  void showAlertDialog(dynamic description) {
     showDialog(
       context: context,
       child: new AlertDialog(
@@ -49,8 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   pwdController.clear();
                   repwdController.clear();
                 });
-              }
-          ),
+              }),
         ],
       ),
     );
@@ -124,18 +120,17 @@ class _RegisterPageState extends State<RegisterPage> {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
               //TODO 执行登录方法
-              bool connected=true;
-              Future.delayed(Duration(seconds: 1),()=>Account.register(account,password))
-                  .catchError((e){
-                    showAlertDialog(e);
-                    connected=false;
-                  })
-                  .whenComplete((){
-                    if(connected){
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (BuildContext context) => LoginPage()));
-                    }
-                  });
+              bool connected = true;
+              Future.delayed(Duration(seconds: 1),
+                  () => Account.register(account, password)).catchError((e) {
+                showAlertDialog(e);
+                connected = false;
+              }).whenComplete(() {
+                if (connected) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (BuildContext context) => LoginPage()));
+                }
+              });
             }
           },
           shape: StadiumBorder(),
@@ -153,7 +148,7 @@ class _RegisterPageState extends State<RegisterPage> {
       validator: (String value) {
         if (value.isEmpty) {
           return '请输入密码';
-        }else if(value!=pwdController.text){
+        } else if (value != pwdController.text) {
           return '两次输入的密码不一致';
         }
       },
@@ -172,7 +167,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-
   TextFormField buildPassword(BuildContext context) {
     return TextFormField(
       controller: pwdController,
@@ -186,9 +180,7 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
         labelText: 'Password',
         suffixIcon: IconButton(
-            icon: Icon(
-                (isObscure) ? Icons.visibility_off : Icons.visibility
-            ),
+            icon: Icon((isObscure) ? Icons.visibility_off : Icons.visibility),
             onPressed: () {
               setState(() {
                 isObscure = !isObscure;
@@ -209,18 +201,19 @@ class _RegisterPageState extends State<RegisterPage> {
       },
       decoration: InputDecoration(
           labelText: 'Account',
-          suffixIcon:(isEmpty)?IconButton(
-              icon: Icon(
-                Icons.clear,
-              ),
-              onPressed: () {
-                setState(() {
-                  accountController.clear();
-                  pwdController.clear();
-                  repwdController.clear();
-                });
-              }):null
-      ),
+          suffixIcon: (isEmpty)
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      accountController.clear();
+                      pwdController.clear();
+                      repwdController.clear();
+                    });
+                  })
+              : null),
     );
   }
 

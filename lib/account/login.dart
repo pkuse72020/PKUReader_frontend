@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
-  void showAlertDialog(dynamic description){
+  void showAlertDialog(dynamic description) {
     showDialog(
       context: context,
       child: new AlertDialog(
@@ -37,15 +37,14 @@ class _LoginPageState extends State<LoginPage> {
         content: Text(description.toString()),
         actions: [
           new FlatButton(
-            child: const Text("Ok"),
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                accountController.clear();
-                pwdController.clear();
-              });
-            }
-          ),
+              child: const Text("Ok"),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+                setState(() {
+                  accountController.clear();
+                  pwdController.clear();
+                });
+              }),
         ],
       ),
     );
@@ -126,18 +125,17 @@ class _LoginPageState extends State<LoginPage> {
 //                print(e.toString());
 //              }
               //异步调用
-              bool connected=true;
-              Future.delayed(Duration(seconds: 1),()=>Account.logIn(account,password))
-                  .catchError((e){
-                    showAlertDialog(e);
-                    connected=false;
-                  })
-                  .whenComplete((){
-                    if(connected){
-                      //TODO 回到主界面
-                      Navigator.of(context).pop();
-                    }
-                  });
+              bool connected = true;
+              Future.delayed(Duration(seconds: 1),
+                  () => Account.logIn(account, password)).catchError((e) {
+                showAlertDialog(e);
+                connected = false;
+              }).whenComplete(() {
+                if (connected) {
+                  //TODO 回到主界面
+                  Navigator.of(context).pop();
+                }
+              });
             }
           },
           shape: StadiumBorder(),
@@ -201,15 +199,15 @@ class _LoginPageState extends State<LoginPage> {
           labelText: 'Account',
           suffixIcon: (isEmpty)
               ? IconButton(
-              icon: Icon(
-                Icons.clear,
-              ),
-              onPressed: () {
-                setState(() {
-                  accountController.clear();
-                  pwdController.clear();
-                });
-              })
+                  icon: Icon(
+                    Icons.clear,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      accountController.clear();
+                      pwdController.clear();
+                    });
+                  })
               : null),
     );
   }
