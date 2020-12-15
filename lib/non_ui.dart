@@ -9,7 +9,6 @@ part 'non_ui.g.dart';
 /// Non-UI classes.
 
 /// The temporary example account.
-// Account user = null;
 Account user;
 Box<Account> box;
 const String userBox = 'user_box_1';
@@ -58,6 +57,7 @@ class Account extends ChangeNotifier with HiveObject {
 
   bool existArticle(String title) {
     if (favArticles.any((element) => element.title == title)) {
+      // TODO: Replace data with real articles.
       return true;
     }
     return false;

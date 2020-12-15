@@ -62,11 +62,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 title: '阔别900余天，图书馆东楼今日重启',
               )),
           newPageListItem(context, '有知识的新闻阅读', HLNews()),
-          newPageListItem(
-              context,
-              '网页加高亮',
-              HLHtml(title: '网页加高亮'
-              )),
+          newPageListItem(context, '网页加高亮', HLHtml(title: '网页加高亮')),
         ],
       ),
     );
@@ -186,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius:
-                  BorderRadius.circular(AppBar().preferredSize.height),
+                      BorderRadius.circular(AppBar().preferredSize.height),
                   child: Icon(
                     multiple ? Icons.dashboard : Icons.view_agenda,
                     color: AppTheme.dark_grey,
