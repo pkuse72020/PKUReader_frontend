@@ -19,6 +19,16 @@ class AccountManager extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (user == null)
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('错误'),
+        ),
+        body: Center(
+            child: Text('出现这个页面说明 PKU Reader 出现了错误，可访问 '
+                'https://github.com/pkuse72020/pkureader_frontend/issues'
+                ' 向 PKU Reader 的开发者提交错误报告。')),
+      );
     return Scaffold(
       appBar: AppBar(
         title: Text('帐户管理'),
@@ -27,7 +37,8 @@ class AccountManager extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.all(16.0),
-            child: Text(user == null ? '未登录\n' : user.userName + '\n' + user.userId),
+            child: Text(
+                user == null ? '未登录\n' : user.userName + '\n' + user.userId),
           ),
           Divider(),
           newPageListItem(context, '已订阅 RSS 源', SubscrManager(SubscrType.rss)),

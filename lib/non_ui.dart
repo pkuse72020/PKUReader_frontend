@@ -112,6 +112,7 @@ class Account extends ChangeNotifier with HiveObject {
             userName: userName,
             userId: jsonResponse["UserId"]);
         user = account;
+        await box.put('user', user);
         print(account.token);
       }
     }
@@ -145,12 +146,6 @@ class Account extends ChangeNotifier with HiveObject {
     await Hive.initFlutter();
     box = await Hive.openBox<Account>(userBox);
     user = box.get('user');
-
-    // Only before backend integration.
-    if (user == null) {
-      user = Account(token: "example", userName: "PKUer", userId: "0100010");
-      await box.put('user', user);
-    }
   }
 }
 
