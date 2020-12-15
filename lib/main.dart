@@ -13,7 +13,8 @@ import 'non_ui.dart';
 import 'app_theme.dart';
 import 'navigation_home_screen.dart';
 
-void main() {
+Future<void> main() async {
+  await Account.restore();
   runApp(ChangeNotifierProvider(
       create: (context) => user, child: MaterialApp(home: PkuReader())));
 }
@@ -24,7 +25,8 @@ class PkuReader extends StatelessWidget {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Platform.isAndroid ? Brightness.dark : Brightness.light,
+      statusBarBrightness:
+          Platform.isAndroid ? Brightness.dark : Brightness.light,
       systemNavigationBarColor: Colors.white,
       systemNavigationBarDividerColor: Colors.grey,
       systemNavigationBarIconBrightness: Brightness.dark,

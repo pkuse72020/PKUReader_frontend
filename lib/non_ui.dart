@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
+
+part 'non_ui.g.dart';
 
 /// Non-UI classes.
 
 /// The temporary example account.
 // Account user = null;
-Account user = Account(token:"example", userName: "PKUer", userId: "0100010");
+Account user;
+Box<Account> box;
+const String userBox = 'user_box_1';
 const String loginURL = "http://39.98.93.128:5000/user/login";
 const String registerURL = "http://39.98.93.128:5000/user/signup";
 
@@ -16,23 +22,45 @@ const String registerURL = "http://39.98.93.128:5000/user/signup";
 /// use the main memory or the local storage to store the user data. After the
 /// integration of the back-end, this should be constructed using data fetched
 /// from the server.
-
-class Account extends ChangeNotifier {
+@HiveType(typeId: 0)
+class Account extends ChangeNotifier with HiveObject {
+  @HiveField(0)
   final String token;
+
+  @HiveField(1)
   final String userName;
+
+  @HiveField(2)
   final String userId;
-  final favArticles = List<Article>();
-  final subscrRssSrcs = List<Source>();
-  final newsCache = List<Article>();
+
+  @HiveField(3)
+  final List<Article> favArticles;
+
+  @HiveField(4)
+  final List<Source> subscrRssSrcs;
+
+  @HiveField(5)
+  final List<Article> newsCache;
+
+  @HiveField(6)
   var isPressFavButton = true;
 
-  Account({this.token, this.userName, this.userId});
+  Account(
+      {this.token,
+      this.userName,
+      this.userId,
+      List<Article> favArticles,
+      List<Source> subscrRssSrcs,
+      List<Article> newsCache})
+      : favArticles = favArticles ?? List<Article>(),
+        subscrRssSrcs = subscrRssSrcs ?? List<Source>(),
+        newsCache = newsCache ?? List<Article>();
 
   // Those return types may change in the future, because we may need to return
   // a status (of whether the operation was successful).
 
-  bool existArticle(Article article){
-    if(favArticles.any((element) => element.title == article.title)) {
+  bool existArticle(Article article) {
+    if (favArticles.any((element) => element.title == article.title)) {
       return true;
     }
     return false;
@@ -40,21 +68,26 @@ class Account extends ChangeNotifier {
 
   void addArticle(Article article) {
     favArticles.add(article);
+    isPressFavButton = !isPressFavButton;
+    save();
     notifyListeners();
   }
 
   void removeArticle(Article article) {
     favArticles.removeWhere((element) => element.title == article.title);
+    save();
     notifyListeners();
   }
 
   void addSource(Source source) {
     subscrRssSrcs.add(source);
+    save();
     notifyListeners();
   }
 
   void removeSource(Source source) {
     subscrRssSrcs.removeWhere((element) => element == source);
+    save();
     notifyListeners();
   }
 
@@ -108,19 +141,29 @@ class Account extends ChangeNotifier {
     // TODO Implement this.
   }
 
-  /// Save the current account state on the disk.
-  static void save() {
-    // TODO Implement this.
-  }
-
   /// Restore the previous account state on the disk.
-  static void restore() {
-    // TODO Implement this.
+  static Future<void> restore() async {
+    Hive.registerAdapter(AccountAdapter());
+    Hive.registerAdapter(ArticleAdapter());
+    Hive.registerAdapter(SourceAdapter());
+    await Hive.initFlutter();
+    box = await Hive.openBox<Account>(userBox);
+    user = box.get('user');
+
+    // Only before backend integration.
+    if (user == null) {
+      user = Account(token: "example", userName: "PKUer", userId: "0100010");
+      await box.put('user', user);
+    }
   }
 }
 
+@HiveType(typeId: 1)
 class Article {
+  @HiveField(0)
   final String title;
+
+  @HiveField(1)
   final String content;
 
   // If we want to provide different explanations for one word based on the
@@ -128,13 +171,18 @@ class Article {
   //
   // Since we are now using the [highlight_text] package, which (seemingly) does
   // not support the function described above, a [Map<String, String>] is okay.
+  @HiveField(2)
   final Map<String, String> keywords;
 
   Article(this.title, this.content, {this.keywords});
 }
 
+@HiveType(typeId: 2)
 class Source {
+  @HiveField(0)
   final String name;
+
+  @HiveField(1)
   final String url;
 
   Source(this.name, this.url);
