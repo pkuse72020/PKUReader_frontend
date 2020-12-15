@@ -1,4 +1,6 @@
+import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../local.dart';
@@ -181,7 +183,31 @@ class _BrowseNewsState extends State<BrowseNews> {
     );
   }
 }
+class HighlightedWord {
+  final TextStyle textStyle;
+  final VoidCallback onTap;
 
+  HighlightedWord({
+    @required this.onTap,
+    this.textStyle = const TextStyle(
+      color: Colors.red,
+    ),
+  });
+}
+class HighlightMap {
+  LinkedHashMap<String, HighlightedWord> _hashMap = LinkedHashMap(
+    equals: (a, b) => a.toLowerCase() == b.toLowerCase(),
+    hashCode: (a) => a.toLowerCase().hashCode,
+  );
+
+  HighlightMap(Map<String, HighlightedWord> myMap) {
+    myMap.forEach((k, v) {
+      _hashMap[k] = v;
+    });
+  }
+
+  get getMap => _hashMap;
+}
 class ReadNews extends StatefulWidget {
   final title;
   ReadNews({this.title});
@@ -191,6 +217,99 @@ class ReadNews extends StatefulWidget {
 }
 
 class _ReadNewsState extends State<ReadNews> {
+  AlertDialog getAlertDialog(context,word,explanation){
+    return AlertDialog(
+      title: Text(word),
+      content: Text(explanation),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text("Ok"),
+        )
+      ],
+    );
+  }
+  HighlightedWord getHighlightedWord(context,textStyle,word,explanation){
+    return  HighlightedWord(
+      onTap: () {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return getAlertDialog(context,word,explanation);
+            });
+      },
+      textStyle: textStyle,
+    );
+  }
+  Map<String,HighlightedWord> getKeyWordsMap(context,textStyle,key_words_dict){
+    Map<String,HighlightedWord> myMap=new Map<String,HighlightedWord>();
+    for(var key_word in key_words_dict.keys){
+      myMap[key_word]=getHighlightedWord(context, textStyle, key_word,
+          key_words_dict[key_word]);
+    }
+    return myMap;
+  }
+
+  ///fucntion for building TextSpan for text
+  TextSpan buildSpan(BuildContext context,String full_text,
+      key_words_list, LinkedHashMap<String, HighlightedWord> hash_map,
+      TextStyle defaultStyle, var to_default) {
+    if(full_text.length==0)
+      return TextSpan(text: "");
+    for(var key_word in key_words_list){
+      if(full_text.length<key_word.length)
+        continue;
+      String comp=full_text.substring(0,key_word.length);
+      if (comp==key_word) {
+        return TextSpan(
+          text: comp,
+          style: hash_map[comp].textStyle,
+          children: [
+            // TextSpan(
+            //   text: " ",
+            //   style: defaultStyle,
+            // ),
+            buildSpan(context,full_text.substring(comp.length,full_text
+                .length), key_words_list,hash_map,defaultStyle,1),
+          ],
+          recognizer: TapGestureRecognizer()
+            ..onTap = () => hash_map[comp].onTap(),
+        );
+      }
+    }
+    return TextSpan(
+      text: full_text[0],
+      // style: the_words.containsKey(currentWord)
+      //     ? the_words[currentWord].textStyle
+      //     : defaultStyle,
+      style:to_default==1?defaultStyle:null,
+      children: [
+        buildSpan(context,full_text.substring(1,full_text.length),
+            key_words_list,hash_map,defaultStyle,0),
+      ],
+      recognizer: null,
+    );
+
+  }
+
+  TextSpan getSpan(BuildContext context,String full_text,full_dict) {
+    TextStyle textStyle = TextStyle(
+      color: Colors.blueAccent,
+      fontSize: 16.5,
+    );
+    TextStyle defaultStyle = TextStyle(
+      color: Colors.black54,
+      fontSize: 16.5,
+    );
+    Map<String,HighlightedWord> key_words_map=getKeyWordsMap(context,
+        textStyle,full_dict);
+    HighlightMap highlightMap = HighlightMap(key_words_map);
+    final LinkedHashMap<String, HighlightedWord> hash_map=highlightMap.getMap;
+    return buildSpan(context, full_text,full_dict.keys, hash_map, defaultStyle,1);
+  }
+
   //mainImage
   Widget mainImageWidget(height) => Container(
         height: height / 3,
@@ -242,7 +361,7 @@ class _ReadNewsState extends State<ReadNews> {
 
   //Bottom Sheet Content
 
-  Widget bottomContent(height, width) => new SingleChildScrollView(
+  Widget bottomContent(height, width,need_hl,context) => new SingleChildScrollView(
         child: Container(
           margin: EdgeInsets.only(top: height / 30),
           width: width,
@@ -278,7 +397,11 @@ class _ReadNewsState extends State<ReadNews> {
                 ),
 
                 //Paragraph
-                Text(
+                need_hl==1
+                    ?Text.rich(
+                    getSpan(context,news_dict[widget.title],
+                        all_key_words[widget.title]))
+                    : Text(
                   news_dict[widget.title] ?? "",
                   style: TextStyle(
                     color: Colors.black54,
@@ -319,7 +442,10 @@ class _ReadNewsState extends State<ReadNews> {
                     topRight: Radius.circular(40)),
               ),
 
-              child: bottomContent(height, width),
+              // child: bottomContent(height, width),
+              child: widget.title=='美国监管机构批准辉瑞新冠疫苗，下周开始接种'
+                  ?bottomContent(height,width,1,context)
+                  :bottomContent(height, width,0,context),
             ),
           ],
         ),

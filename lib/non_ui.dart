@@ -145,7 +145,10 @@ class Account extends ChangeNotifier with HiveObject {
     Hive.registerAdapter(SourceAdapter());
     await Hive.initFlutter();
     box = await Hive.openBox<Account>(userBox);
-    user = box.get('user');
+    // user = box.get('user');
+    Account example_account = Account(token: "example", userName: "PKUer", userId: "0100010");
+    user = example_account;
+    await box.put('user',user);
   }
 }
 

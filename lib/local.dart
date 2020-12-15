@@ -932,3 +932,17 @@ final key_words_dict={
       "search engine, cloud computing, software, and hardware. It is considered one of the Big "
       "Four technology companies, alongside Amazon, Apple and Facebook.",
 };
+
+final all_key_words={
+  '美国监管机构批准辉瑞新冠疫苗，下周开始接种':{
+    '辉瑞':'辉瑞公司创建于1849年，迄今已有170年的历史，总部位于美国纽约，是全球最大的以研发为基础的生物'
+        '制药公司。辉瑞公司的产品覆盖了包括化学药物、生物制剂、疫苗、健康药物等诸多广泛而极具潜力的'
+        '治疗及健康领域，同时其卓越的研发和生产能力处于全球领先地位。',
+    'BioNTech':'BioNTech【德国独角兽企业】BioNTech于2008年成立于德国美因茨，拥有世界领先的生产基因和细'
+        '胞药物及mRNA治疗、检测产品的cGMP生产基地，是全球三大mRNA疗法引领者之一（另外两家是德国图'
+        '宾根的CureVac和美国马萨诸塞州剑桥Moderna）。',
+    'mRNA':'信使RNA是由DNA的一条链作为模板转录而来的、携带遗传信息的能指导蛋白质合成的一类单链核糖核酸。',
+    '突刺蛋白':'刺突蛋白（spike glycoprotein ）简称S蛋白，位于新冠病毒最外层，像一个个突起的“皇冠”。',
+    'use':'hello',
+  },
+};
