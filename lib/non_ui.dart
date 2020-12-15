@@ -42,9 +42,6 @@ class Account extends ChangeNotifier with HiveObject {
   @HiveField(5)
   final List<Article> newsCache;
 
-  @HiveField(6)
-  var isPressFavButton = true;
-
   Account(
       {this.token,
       this.userName,
@@ -59,8 +56,8 @@ class Account extends ChangeNotifier with HiveObject {
   // Those return types may change in the future, because we may need to return
   // a status (of whether the operation was successful).
 
-  bool existArticle(Article article) {
-    if (favArticles.any((element) => element.title == article.title)) {
+  bool existArticle(String title) {
+    if (favArticles.any((element) => element.title == title)) {
       return true;
     }
     return false;
@@ -68,13 +65,12 @@ class Account extends ChangeNotifier with HiveObject {
 
   void addArticle(Article article) {
     favArticles.add(article);
-    isPressFavButton = !isPressFavButton;
     save();
     notifyListeners();
   }
 
-  void removeArticle(Article article) {
-    favArticles.removeWhere((element) => element.title == article.title);
+  void removeArticle(String title) {
+    favArticles.removeWhere((element) => element.title == title);
     save();
     notifyListeners();
   }

@@ -23,13 +23,13 @@ class AccountAdapter extends TypeAdapter<Account> {
       favArticles: (fields[3] as List)?.cast<Article>(),
       subscrRssSrcs: (fields[4] as List)?.cast<Source>(),
       newsCache: (fields[5] as List)?.cast<Article>(),
-    )..isPressFavButton = fields[6] as bool;
+    );
   }
 
   @override
   void write(BinaryWriter writer, Account obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.token)
       ..writeByte(1)
@@ -41,9 +41,7 @@ class AccountAdapter extends TypeAdapter<Account> {
       ..writeByte(4)
       ..write(obj.subscrRssSrcs)
       ..writeByte(5)
-      ..write(obj.newsCache)
-      ..writeByte(6)
-      ..write(obj.isPressFavButton);
+      ..write(obj.newsCache);
   }
 
   @override

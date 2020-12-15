@@ -81,7 +81,7 @@ class SubscrManager extends StatelessWidget {
                           title: Text(e.title),
                           trailing: IconButton(
                             icon: Icon(Icons.delete),
-                            onPressed: () => user.removeArticle(e),
+                            onPressed: () => user.removeArticle(e.title),
                           ),
                           onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
