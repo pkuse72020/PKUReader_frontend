@@ -1,3 +1,5 @@
+import 'package:pkureader_frontend/news/news.dart';
+
 import 'app_theme.dart';
 import 'home_screen.dart';
 import 'package:pkureader_frontend/drawer/drawer_user_controller.dart';
@@ -56,7 +58,8 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
       drawerIndex = drawerIndexdata;
       if (drawerIndex == DrawerIndex.HOME) {
         setState(() {
-          screenView = const MyHomePage();
+          // screenView = const MyHomePage();
+          screenView= new BrowseNews();
         });
       } else if (drawerIndex == DrawerIndex.AccountManager) {
         if (user == null) {
