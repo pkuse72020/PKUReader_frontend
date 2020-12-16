@@ -16,9 +16,7 @@ class CustomScaffold extends StatelessWidget {
   final IconData nextPageIcon;
   final Widget nextPage;
   final Widget middle;
-
-  final double top;
-  final double down;
+  final double height;
 
   CustomScaffold(
       {@required this.name,
@@ -26,8 +24,7 @@ class CustomScaffold extends StatelessWidget {
       this.nextPageIcon,
       this.nextPage,
       this.middle = const SizedBox(),
-      this.top = 0.0,
-      this.down = 0.0});
+      this.height = double.infinity});
 
   @override
   Widget build(BuildContext context) {
@@ -78,31 +75,35 @@ class CustomScaffold extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: top),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadiusDirectional.all(Radius.circular(40.0)),
-                  boxShadow: [
-                    BoxShadow(color: Color(0x2f000000), blurRadius: 6.0)
-                  ],
-                ),
-                child: Material(
-                  color: AppTheme.nearlyWhite,
-                  borderRadius:
-                      BorderRadiusDirectional.all(Radius.circular(40.0)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: body,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: height,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadiusDirectional.all(Radius.circular(40.0)),
+                      boxShadow: [
+                        BoxShadow(color: Color(0x2f000000), blurRadius: 6.0)
+                      ],
+                    ),
+                    child: Material(
+                      color: AppTheme.nearlyWhite,
+                      borderRadius:
+                          BorderRadiusDirectional.all(Radius.circular(40.0)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: body,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-          SizedBox(height: down),
         ],
       ),
     );
@@ -278,12 +279,20 @@ class _SubscrManagerState extends State<SubscrManager> {
                         title: Text(e.title),
                         trailing: IconButton(
                           icon: Icon(Icons.delete),
-                          onPressed: () => user.removeArticle(e.title),
+                          onPressed: () {
+                            setState(() {
+                              user.removeArticle(e.title);
+                            });
+                          },
                         ),
-                        onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    ReadNews(title: e.title))),
+                        onTap: () =>
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ReadNews(
+                                      title: e.title,
+                                      callback: () {
+                                        setState(() {});
+                                      },
+                                    ))),
                       ))
                   .toList()),
       nextPageIcon: Icons.add,
@@ -373,7 +382,10 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
                         .map((e) => ListTile(
                               title: Text(e),
                               onTap: () {
-                                user.addArticle(Article(e, news_dict[e]));
+                                setState(() {
+                                  user.addArticle(Article(e, news_dict[e]));
+                                });
+                                widget.callback();
                               },
                             ))
                         .toList()),
@@ -397,10 +409,13 @@ class _SubmitPageState extends State<SubmitPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('called: ${MediaQuery.of(context).size.height}');
+    final top = MediaQuery.of(context).size.height > 360.0
+        ? (MediaQuery.of(context).size.height - 360.0) / 2
+        : 0.0;
     return CustomScaffold(
         name: '发布',
-        top: 140.0,
-        down: 140.0,
+        height: 240.0,
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Center(

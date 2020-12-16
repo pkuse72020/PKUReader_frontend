@@ -183,6 +183,7 @@ class _BrowseNewsState extends State<BrowseNews> {
     );
   }
 }
+
 class HighlightedWord {
   final TextStyle textStyle;
   final VoidCallback onTap;
@@ -194,6 +195,7 @@ class HighlightedWord {
     ),
   });
 }
+
 class HighlightMap {
   LinkedHashMap<String, HighlightedWord> _hashMap = LinkedHashMap(
     equals: (a, b) => a.toLowerCase() == b.toLowerCase(),
@@ -208,16 +210,18 @@ class HighlightMap {
 
   get getMap => _hashMap;
 }
+
 class ReadNews extends StatefulWidget {
   final title;
-  ReadNews({this.title});
+  final callback;
+  ReadNews({this.title, this.callback});
 
   @override
   _ReadNewsState createState() => _ReadNewsState();
 }
 
 class _ReadNewsState extends State<ReadNews> {
-  AlertDialog getAlertDialog(context,word,explanation){
+  AlertDialog getAlertDialog(context, word, explanation) {
     return AlertDialog(
       title: Text(word),
       content: Text(explanation),
@@ -231,38 +235,43 @@ class _ReadNewsState extends State<ReadNews> {
       ],
     );
   }
-  HighlightedWord getHighlightedWord(context,textStyle,word,explanation){
-    return  HighlightedWord(
+
+  HighlightedWord getHighlightedWord(context, textStyle, word, explanation) {
+    return HighlightedWord(
       onTap: () {
         showDialog(
             context: context,
             builder: (context) {
-              return getAlertDialog(context,word,explanation);
+              return getAlertDialog(context, word, explanation);
             });
       },
       textStyle: textStyle,
     );
   }
-  Map<String,HighlightedWord> getKeyWordsMap(context,textStyle,key_words_dict){
-    Map<String,HighlightedWord> myMap=new Map<String,HighlightedWord>();
-    for(var key_word in key_words_dict.keys){
-      myMap[key_word]=getHighlightedWord(context, textStyle, key_word,
-          key_words_dict[key_word]);
+
+  Map<String, HighlightedWord> getKeyWordsMap(
+      context, textStyle, key_words_dict) {
+    Map<String, HighlightedWord> myMap = new Map<String, HighlightedWord>();
+    for (var key_word in key_words_dict.keys) {
+      myMap[key_word] = getHighlightedWord(
+          context, textStyle, key_word, key_words_dict[key_word]);
     }
     return myMap;
   }
 
   ///fucntion for building TextSpan for text
-  TextSpan buildSpan(BuildContext context,String full_text,
-      key_words_list, LinkedHashMap<String, HighlightedWord> hash_map,
-      TextStyle defaultStyle, var to_default) {
-    if(full_text.length==0)
-      return TextSpan(text: "");
-    for(var key_word in key_words_list){
-      if(full_text.length<key_word.length)
-        continue;
-      String comp=full_text.substring(0,key_word.length);
-      if (comp==key_word) {
+  TextSpan buildSpan(
+      BuildContext context,
+      String full_text,
+      key_words_list,
+      LinkedHashMap<String, HighlightedWord> hash_map,
+      TextStyle defaultStyle,
+      var to_default) {
+    if (full_text.length == 0) return TextSpan(text: "");
+    for (var key_word in key_words_list) {
+      if (full_text.length < key_word.length) continue;
+      String comp = full_text.substring(0, key_word.length);
+      if (comp == key_word) {
         return TextSpan(
           text: comp,
           style: hash_map[comp].textStyle,
@@ -271,8 +280,13 @@ class _ReadNewsState extends State<ReadNews> {
             //   text: " ",
             //   style: defaultStyle,
             // ),
-            buildSpan(context,full_text.substring(comp.length,full_text
-                .length), key_words_list,hash_map,defaultStyle,1),
+            buildSpan(
+                context,
+                full_text.substring(comp.length, full_text.length),
+                key_words_list,
+                hash_map,
+                defaultStyle,
+                1),
           ],
           recognizer: TapGestureRecognizer()
             ..onTap = () => hash_map[comp].onTap(),
@@ -284,17 +298,16 @@ class _ReadNewsState extends State<ReadNews> {
       // style: the_words.containsKey(currentWord)
       //     ? the_words[currentWord].textStyle
       //     : defaultStyle,
-      style:to_default==1?defaultStyle:null,
+      style: to_default == 1 ? defaultStyle : null,
       children: [
-        buildSpan(context,full_text.substring(1,full_text.length),
-            key_words_list,hash_map,defaultStyle,0),
+        buildSpan(context, full_text.substring(1, full_text.length),
+            key_words_list, hash_map, defaultStyle, 0),
       ],
       recognizer: null,
     );
-
   }
 
-  TextSpan getSpan(BuildContext context,String full_text,full_dict) {
+  TextSpan getSpan(BuildContext context, String full_text, full_dict) {
     TextStyle textStyle = TextStyle(
       color: Colors.blueAccent,
       fontSize: 16.5,
@@ -303,11 +316,12 @@ class _ReadNewsState extends State<ReadNews> {
       color: Colors.black54,
       fontSize: 16.5,
     );
-    Map<String,HighlightedWord> key_words_map=getKeyWordsMap(context,
-        textStyle,full_dict);
+    Map<String, HighlightedWord> key_words_map =
+        getKeyWordsMap(context, textStyle, full_dict);
     HighlightMap highlightMap = HighlightMap(key_words_map);
-    final LinkedHashMap<String, HighlightedWord> hash_map=highlightMap.getMap;
-    return buildSpan(context, full_text,full_dict.keys, hash_map, defaultStyle,1);
+    final LinkedHashMap<String, HighlightedWord> hash_map = highlightMap.getMap;
+    return buildSpan(
+        context, full_text, full_dict.keys, hash_map, defaultStyle, 1);
   }
 
   //mainImage
@@ -352,6 +366,7 @@ class _ReadNewsState extends State<ReadNews> {
                       user.addArticle(
                           Article(widget.title, news_dict[widget.title]));
                   });
+                  widget.callback();
                 },
               )
             ],
@@ -361,7 +376,8 @@ class _ReadNewsState extends State<ReadNews> {
 
   //Bottom Sheet Content
 
-  Widget bottomContent(height, width,need_hl,context) => new SingleChildScrollView(
+  Widget bottomContent(height, width, need_hl, context) =>
+      new SingleChildScrollView(
         child: Container(
           margin: EdgeInsets.only(top: height / 30),
           width: width,
@@ -397,20 +413,19 @@ class _ReadNewsState extends State<ReadNews> {
                 ),
 
                 //Paragraph
-                need_hl==1
-                    ?Text.rich(
-                    getSpan(context,news_dict[widget.title],
+                need_hl == 1
+                    ? Text.rich(getSpan(context, news_dict[widget.title],
                         all_key_words[widget.title]))
                     : Text(
-                  news_dict[widget.title] ?? "",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 16.5,
-                    // height: 1.4
-                  ),
-                  textAlign: TextAlign.left,
-                  // maxLines: 8,
-                ),
+                        news_dict[widget.title] ?? "",
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 16.5,
+                          // height: 1.4
+                        ),
+                        textAlign: TextAlign.left,
+                        // maxLines: 8,
+                      ),
               ],
             ),
           ),
@@ -443,9 +458,9 @@ class _ReadNewsState extends State<ReadNews> {
               ),
 
               // child: bottomContent(height, width),
-              child: widget.title=='美国监管机构批准辉瑞新冠疫苗，下周开始接种'
-                  ?bottomContent(height,width,1,context)
-                  :bottomContent(height, width,0,context),
+              child: widget.title == '美国监管机构批准辉瑞新冠疫苗，下周开始接种'
+                  ? bottomContent(height, width, 1, context)
+                  : bottomContent(height, width, 0, context),
             ),
           ],
         ),
