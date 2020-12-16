@@ -134,8 +134,9 @@ class Account extends ChangeNotifier with HiveObject {
     }
   }
 
-  static void logOut() {
-    // TODO Implement this.
+  static Future<void> logOut() async {
+    await box.delete('user');
+    user = null;
   }
 
   /// Restore the previous account state on the disk.
@@ -145,10 +146,10 @@ class Account extends ChangeNotifier with HiveObject {
     Hive.registerAdapter(SourceAdapter());
     await Hive.initFlutter();
     box = await Hive.openBox<Account>(userBox);
-    // user = box.get('user');
-    Account example_account = Account(token: "example", userName: "PKUer", userId: "0100010");
-    user = example_account;
-    await box.put('user',user);
+    user = box.get('user');
+    // Account example_account = Account(token: "example", userName: "PKUer", userId: "0100010");
+    // user = example_account;
+    // await box.put('user',user);
   }
 }
 

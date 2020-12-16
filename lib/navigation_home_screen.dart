@@ -6,6 +6,10 @@ import 'package:pkureader_frontend/drawer/feedback_screen.dart';
 import 'package:pkureader_frontend/drawer/help_screen.dart';
 import 'package:flutter/material.dart';
 
+import 'account/account_manager.dart';
+import 'account/login.dart';
+import 'non_ui.dart';
+
 class NavigationHomeScreen extends StatefulWidget {
   @override
   _NavigationHomeScreenState createState() => _NavigationHomeScreenState();
@@ -47,12 +51,23 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
   }
 
   void changeIndex(DrawerIndex drawerIndexdata) {
+    DrawerIndex oldIndex = drawerIndex;
     if (drawerIndex != drawerIndexdata) {
       drawerIndex = drawerIndexdata;
       if (drawerIndex == DrawerIndex.HOME) {
         setState(() {
           screenView = const MyHomePage();
         });
+      } else if (drawerIndex == DrawerIndex.AccountManager) {
+        if (user == null) {
+          drawerIndex = oldIndex;
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => LoginPage()));
+        } else {
+          setState(() {
+            screenView = AccountManager();
+          });
+        }
       } else if (drawerIndex == DrawerIndex.Help) {
         setState(() {
           screenView = HelpScreen();

@@ -48,12 +48,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       body: ListView(
         children: [
           newPageListItem(context, 'Test', Test()),
-          newPageListItem(
-              context,
-              '帐户管理',
-              AccountManager(
-                user: user,
-              )),
           newPageListItem(context, '新闻浏览', BrowseNews()),
           newPageListItem(
               context,

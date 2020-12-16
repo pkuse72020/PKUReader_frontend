@@ -1,8 +1,15 @@
 import 'package:pkureader_frontend/app_theme.dart';
 import 'package:flutter/material.dart';
 
+import '../non_ui.dart';
+
 class HomeDrawer extends StatefulWidget {
-  const HomeDrawer({Key key, this.screenIndex, this.iconAnimationController, this.callBackIndex}) : super(key: key);
+  const HomeDrawer(
+      {Key key,
+      this.screenIndex,
+      this.iconAnimationController,
+      this.callBackIndex})
+      : super(key: key);
 
   final AnimationController iconAnimationController;
   final DrawerIndex screenIndex;
@@ -72,11 +79,15 @@ class _HomeDrawerState extends State<HomeDrawer> {
                     animation: widget.iconAnimationController,
                     builder: (BuildContext context, Widget child) {
                       return ScaleTransition(
-                        scale: AlwaysStoppedAnimation<double>(1.0 - (widget.iconAnimationController.value) * 0.2),
+                        scale: AlwaysStoppedAnimation<double>(
+                            1.0 - (widget.iconAnimationController.value) * 0.2),
                         child: RotationTransition(
-                          turns: AlwaysStoppedAnimation<double>(Tween<double>(begin: 0.0, end: 24.0)
-                              .animate(CurvedAnimation(parent: widget.iconAnimationController, curve: Curves.fastOutSlowIn))
-                              .value /
+                          turns: AlwaysStoppedAnimation<double>(Tween<double>(
+                                      begin: 0.0, end: 24.0)
+                                  .animate(CurvedAnimation(
+                                      parent: widget.iconAnimationController,
+                                      curve: Curves.fastOutSlowIn))
+                                  .value /
                               360),
                           child: Container(
                             height: 120,
@@ -84,12 +95,28 @@ class _HomeDrawerState extends State<HomeDrawer> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               boxShadow: <BoxShadow>[
-                                BoxShadow(color: AppTheme.grey.withOpacity(0.6), offset: const Offset(2.0, 4.0), blurRadius: 8),
+                                BoxShadow(
+                                    color: AppTheme.grey.withOpacity(0.6),
+                                    offset: const Offset(2.0, 4.0),
+                                    blurRadius: 8),
                               ],
                             ),
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.all(Radius.circular(60.0)),
-                              child: Image.asset('assets/images/userImage.png'),
+                            child: IconButton(
+                              iconSize: 160,
+                              padding: EdgeInsets.zero,
+                              icon: ClipRRect(
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(60.0)),
+                                child: user == null
+                                    ? Icon(
+                                        Icons.person,
+                                        size: 140.0,
+                                      )
+                                    : Image.asset(
+                                        'assets/images/userImage.png'),
+                              ),
+                              onPressed: () => navigationtoScreen(
+                                  DrawerIndex.AccountManager),
                             ),
                           ),
                         ),
@@ -99,7 +126,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8, left: 4),
                     child: Text(
-                      'PKUer',
+                      user == null ? '未登录' : user.userName,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.grey,
@@ -128,33 +155,45 @@ class _HomeDrawerState extends State<HomeDrawer> {
               },
             ),
           ),
-          Divider(
-            height: 1,
-            color: AppTheme.grey.withOpacity(0.6),
+          Opacity(
+            opacity: user == null ? 0.0 : 1.0,
+            child: Divider(
+              height: 1,
+              color: AppTheme.grey.withOpacity(0.6),
+            ),
           ),
-          Column(
-            children: <Widget>[
-              ListTile(
-                title: Text(
-                  'Sign Out',
-                  style: TextStyle(
-                    fontFamily: AppTheme.fontName,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: AppTheme.darkText,
+          Opacity(
+            opacity: user == null ? 0.0 : 1.0,
+            child: Column(
+              children: <Widget>[
+                ListTile(
+                  title: Text(
+                    'Sign Out',
+                    style: TextStyle(
+                      fontFamily: AppTheme.fontName,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: AppTheme.darkText,
+                    ),
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
+                  trailing: Icon(
+                    Icons.power_settings_new,
+                    color: Colors.red,
+                  ),
+                  onTap: user == null
+                      ? null
+                      : () {
+                          setState(() {
+                            Account.logOut();
+                          });
+                        },
                 ),
-                trailing: Icon(
-                  Icons.power_settings_new,
-                  color: Colors.red,
-                ),
-                onTap: () {},
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).padding.bottom,
-              )
-            ],
+                SizedBox(
+                  height: MediaQuery.of(context).padding.bottom,
+                )
+              ],
+            ),
           ),
         ],
       ),
@@ -196,11 +235,17 @@ class _HomeDrawerState extends State<HomeDrawer> {
                   ),
                   listData.isAssetsImage
                       ? Container(
-                    width: 24,
-                    height: 24,
-                    child: Image.asset(listData.imageName, color: widget.screenIndex == listData.index ? Colors.blue : AppTheme.nearlyBlack),
-                  )
-                      : Icon(listData.icon.icon, color: widget.screenIndex == listData.index ? Colors.blue : AppTheme.nearlyBlack),
+                          width: 24,
+                          height: 24,
+                          child: Image.asset(listData.imageName,
+                              color: widget.screenIndex == listData.index
+                                  ? Colors.blue
+                                  : AppTheme.nearlyBlack),
+                        )
+                      : Icon(listData.icon.icon,
+                          color: widget.screenIndex == listData.index
+                              ? Colors.blue
+                              : AppTheme.nearlyBlack),
                   const Padding(
                     padding: EdgeInsets.all(4.0),
                   ),
@@ -209,7 +254,9 @@ class _HomeDrawerState extends State<HomeDrawer> {
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
-                      color: widget.screenIndex == listData.index ? Colors.blue : AppTheme.nearlyBlack,
+                      color: widget.screenIndex == listData.index
+                          ? Colors.blue
+                          : AppTheme.nearlyBlack,
                     ),
                     textAlign: TextAlign.left,
                   ),
@@ -218,30 +265,36 @@ class _HomeDrawerState extends State<HomeDrawer> {
             ),
             widget.screenIndex == listData.index
                 ? AnimatedBuilder(
-              animation: widget.iconAnimationController,
-              builder: (BuildContext context, Widget child) {
-                return Transform(
-                  transform: Matrix4.translationValues(
-                      (MediaQuery.of(context).size.width * 0.75 - 64) * (1.0 - widget.iconAnimationController.value - 1.0), 0.0, 0.0),
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 8, bottom: 8),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.75 - 64,
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.2),
-                        borderRadius: new BorderRadius.only(
-                          topLeft: Radius.circular(0),
-                          topRight: Radius.circular(28),
-                          bottomLeft: Radius.circular(0),
-                          bottomRight: Radius.circular(28),
+                    animation: widget.iconAnimationController,
+                    builder: (BuildContext context, Widget child) {
+                      return Transform(
+                        transform: Matrix4.translationValues(
+                            (MediaQuery.of(context).size.width * 0.75 - 64) *
+                                (1.0 -
+                                    widget.iconAnimationController.value -
+                                    1.0),
+                            0.0,
+                            0.0),
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 8, bottom: 8),
+                          child: Container(
+                            width:
+                                MediaQuery.of(context).size.width * 0.75 - 64,
+                            height: 46,
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.2),
+                              borderRadius: new BorderRadius.only(
+                                topLeft: Radius.circular(0),
+                                topRight: Radius.circular(28),
+                                bottomLeft: Radius.circular(0),
+                                bottomRight: Radius.circular(28),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            )
+                      );
+                    },
+                  )
                 : const SizedBox()
           ],
         ),
@@ -262,6 +315,7 @@ enum DrawerIndex {
   About,
   Invite,
   Testing,
+  AccountManager
 }
 
 class DrawerList {
