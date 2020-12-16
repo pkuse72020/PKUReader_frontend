@@ -24,7 +24,8 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
   @override
   void initState() {
     drawerIndex = DrawerIndex.HOME;
-    screenView = const MyHomePage();
+    // screenView = const MyHomePage();
+    screenView=new BrowseNews();
     super.initState();
   }
 
