@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pkureader_frontend/app_theme.dart';
-import 'package:provider/provider.dart';
 
 import '../local.dart';
 import '../news/news.dart';
