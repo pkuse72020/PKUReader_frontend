@@ -239,7 +239,7 @@ class AccountManager extends StatelessWidget {
 ///
 /// Due to the similarity of subscriptions and favorite articles, we choose to
 /// use the same class to handle both of them.
-class SubscrManager extends StatelessWidget {
+class SubscrManager extends StatefulWidget {
   /// The subscription type.
   ///
   /// If the instance handles RSS source subscriptions, it has the value
@@ -250,38 +250,47 @@ class SubscrManager extends StatelessWidget {
   SubscrManager(this.type);
 
   @override
+  _SubscrManagerState createState() => _SubscrManagerState();
+}
+
+class _SubscrManagerState extends State<SubscrManager> {
+  @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      name: type == SubscrType.rss ? '已订阅 RSS 源' : '已收藏文章',
-      body: Consumer<Account>(
-        builder: (context, value, child) => ListView(
-            children: type == SubscrType.rss
-                ? user.subscrRssSrcs
-                    .map((e) => ListTile(
-                          title: Text(e.name),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () => user.removeSource(e),
-                          ),
-                        ))
-                    .toList()
-                : user.favArticles
-                    .map((e) => ListTile(
-                          contentPadding: EdgeInsets.all(12.0),
-                          title: Text(e.title),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () => user.removeArticle(e.title),
-                          ),
-                          onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ReadNews(title: e.title))),
-                        ))
-                    .toList()),
-      ),
+      name: widget.type == SubscrType.rss ? '已订阅 RSS 源' : '已收藏文章',
+      body: ListView(
+          children: widget.type == SubscrType.rss
+              ? user.subscrRssSrcs
+                  .map((e) => ListTile(
+                        title: Text(e.name),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            setState(() {
+                              user.removeSource(e);
+                            });
+                          },
+                        ),
+                      ))
+                  .toList()
+              : user.favArticles
+                  .map((e) => ListTile(
+                        contentPadding: EdgeInsets.all(12.0),
+                        title: Text(e.title),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () => user.removeArticle(e.title),
+                        ),
+                        onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    ReadNews(title: e.title))),
+                      ))
+                  .toList()),
       nextPageIcon: Icons.add,
-      nextPage: NewSubscrPage(type),
+      nextPage: NewSubscrPage(widget.type, () {
+        setState(() {});
+      }),
     );
   }
 }
@@ -297,7 +306,9 @@ class NewSubscrPage extends StatefulWidget {
   /// value [SubscrType.article].
   final type;
 
-  NewSubscrPage(this.type);
+  final Function callback;
+
+  NewSubscrPage(this.type, this.callback);
 
   @override
   _NewSubscrPageState createState() => _NewSubscrPageState();
@@ -329,14 +340,14 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
         padding: EdgeInsets.all(8.0),
         child: TextField(
           controller: controller,
-          decoration: InputDecoration(hintText: '搜索', icon: const Icon(Icons.search)),
+          decoration:
+              InputDecoration(hintText: '搜索', icon: const Icon(Icons.search)),
         ),
       ),
       body: Column(
         children: [
           Expanded(
-              child: Consumer<Account>(
-            builder: (context, value, child) => ListView(
+            child: ListView(
                 children: widget.type == SubscrType.rss
                     ? rssSources
                         .where((element) => !user.subscrRssSrcs
@@ -348,7 +359,10 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
                         .map((e) => ListTile(
                               title: Text(e),
                               onTap: () {
-                                user.addSource(Source(e, ''));
+                                setState(() {
+                                  user.addSource(Source(e, ''));
+                                });
+                                widget.callback();
                               },
                             ))
                         .toList()
@@ -364,7 +378,7 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
                               },
                             ))
                         .toList()),
-          ))
+          )
         ],
       ),
     );

@@ -115,8 +115,9 @@ class _HomeDrawerState extends State<HomeDrawer> {
                                     : Image.asset(
                                         'assets/images/userImage.png'),
                               ),
-                              onPressed: () => navigationtoScreen(
-                                  DrawerIndex.AccountManager),
+                              onPressed: () {
+                                navigationtoScreen(DrawerIndex.AccountManager);
+                              },
                             ),
                           ),
                         ),
@@ -187,6 +188,8 @@ class _HomeDrawerState extends State<HomeDrawer> {
                           setState(() {
                             Account.logOut();
                           });
+                          if (widget.screenIndex == DrawerIndex.AccountManager)
+                            navigationtoScreen(DrawerIndex.HOME);
                         },
                 ),
                 SizedBox(

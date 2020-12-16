@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 
 // import 'account_manager.dart';
@@ -15,8 +14,7 @@ import 'navigation_home_screen.dart';
 
 Future<void> main() async {
   await Account.restore();
-  runApp(ChangeNotifierProvider(
-      create: (context) => user, child: MaterialApp(home: PkuReader())));
+  runApp(PkuReader());
 }
 
 class PkuReader extends StatelessWidget {

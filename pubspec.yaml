@@ -27,7 +27,6 @@ dependencies:
   flutter_html:
     path: ./lib/flutter_html
 
-  provider: ^3.0.0
   http: ^0.12.0+2
   hive: ^1.4.4+1 
   hive_flutter: ^0.3.1
