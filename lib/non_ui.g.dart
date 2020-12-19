@@ -66,22 +66,25 @@ class ArticleAdapter extends TypeAdapter<Article> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Article(
-      fields[0] as String,
-      fields[1] as String,
+      title: fields[0] as String,
+      content: fields[1] as String,
       keywords: (fields[2] as Map)?.cast<String, String>(),
+      id: fields[3] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Article obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
       ..write(obj.content)
       ..writeByte(2)
-      ..write(obj.keywords);
+      ..write(obj.keywords)
+      ..writeByte(3)
+      ..write(obj.id);
   }
 
   @override
@@ -106,19 +109,22 @@ class SourceAdapter extends TypeAdapter<Source> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Source(
-      fields[0] as String,
-      fields[1] as String,
+      name: fields[0] as String,
+      url: fields[1] as String,
+      id: fields[2] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Source obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.url);
+      ..write(obj.url)
+      ..writeByte(2)
+      ..write(obj.id);
   }
 
   @override

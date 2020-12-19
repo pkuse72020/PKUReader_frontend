@@ -49,12 +49,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         children: [
           newPageListItem(context, 'Test', Test()),
           newPageListItem(context, '新闻浏览', BrowseNews()),
-          newPageListItem(
-              context,
-              '新闻阅读',
-              ReadNews(
-                title: '阔别900余天，图书馆东楼今日重启',
-              )),
+          // newPageListItem(
+          //     context,
+          //     '新闻阅读',
+          //     ReadNews(
+          //       title: '阔别900余天，图书馆东楼今日重启',
+          //     )),
           newPageListItem(context, '有知识的新闻阅读', HLNews()),
           newPageListItem(context, '网页加高亮', HLHtml(title: '网页加高亮')),
         ],

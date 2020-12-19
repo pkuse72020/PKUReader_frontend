@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../local.dart';
 import '../non_ui.dart';
 import '../main.dart';
 
@@ -52,6 +51,7 @@ class _BrowseNewsState extends State<BrowseNews> {
                         fontSize: 24,
                         color: Colors.white,
                         fontWeight: FontWeight.bold),
+                    maxLines: 6,
                   )
                 ],
               ),
@@ -63,19 +63,20 @@ class _BrowseNewsState extends State<BrowseNews> {
   Widget getOneArticle(int i) => Container(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
         child: InkWell(
-          hoverColor: Colors.white70,
-          enableFeedback: true,
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        new ReadNews(title: (news_dict.keys.toList())[i])));
-          },
-          child: getListItem(
-              news_pic_dict[news_dict.keys.toList()[i]], //picture
-              news_dict.keys.toList()[i]), //title
-        ),
+            hoverColor: Colors.white70,
+            enableFeedback: true,
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          new ReadNews(article: user.newsCache[i])));
+            },
+            child: getListItem(
+                // TODO Use proper pictures.
+                'assets/images/article/pkulibrary.jpeg', //picture
+                user.newsCache[i].title) //title
+            ),
       );
 
   @override
@@ -168,12 +169,29 @@ class _BrowseNewsState extends State<BrowseNews> {
                 height: 665,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      itemCount: news_dict.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return getOneArticle(index);
-                      }),
+                  child: RefreshIndicator(
+                    child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        itemCount: user.newsCache.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return getOneArticle(
+                              user.newsCache.length - 1 - index);
+                        }),
+                    onRefresh: () async {
+                      try {
+                        await user.getNews();
+                      } catch (e) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text('异常'),
+                            content: Text(e.toString()),
+                          ),
+                        );
+                      }
+                      setState(() {});
+                    },
+                  ),
                 ),
               ),
             )
@@ -212,9 +230,9 @@ class HighlightMap {
 }
 
 class ReadNews extends StatefulWidget {
-  final title;
+  final Article article;
   final callback;
-  ReadNews({this.title, this.callback});
+  ReadNews({this.article, this.callback});
 
   @override
   _ReadNewsState createState() => _ReadNewsState();
@@ -249,12 +267,11 @@ class _ReadNewsState extends State<ReadNews> {
     );
   }
 
-  Map<String, HighlightedWord> getKeyWordsMap(
-      context, textStyle, key_words_dict) {
+  Map<String, HighlightedWord> getKeyWordsMap(context, textStyle) {
     Map<String, HighlightedWord> myMap = new Map<String, HighlightedWord>();
-    for (var key_word in key_words_dict.keys) {
+    for (var key_word in widget.article.keywords.keys) {
       myMap[key_word] = getHighlightedWord(
-          context, textStyle, key_word, key_words_dict[key_word]);
+          context, textStyle, key_word, widget.article.keywords[key_word]);
     }
     return myMap;
   }
@@ -317,7 +334,7 @@ class _ReadNewsState extends State<ReadNews> {
       fontSize: 16.5,
     );
     Map<String, HighlightedWord> key_words_map =
-        getKeyWordsMap(context, textStyle, full_dict);
+        getKeyWordsMap(context, textStyle);
     HighlightMap highlightMap = HighlightMap(key_words_map);
     final LinkedHashMap<String, HighlightedWord> hash_map = highlightMap.getMap;
     return buildSpan(
@@ -328,9 +345,9 @@ class _ReadNewsState extends State<ReadNews> {
   Widget mainImageWidget(height) => Container(
         height: height / 3,
         decoration: BoxDecoration(
-          image: DecorationImage(
-              image: new ExactAssetImage(news_pic_dict[widget.title] ?? ""),
-              fit: BoxFit.cover),
+          image: DecorationImage(image: new ExactAssetImage(
+              // TODO Use proper pictures.
+              'assets/images/article/pkulibrary.jpeg'), fit: BoxFit.cover),
         ),
         child: Padding(
           padding: const EdgeInsets.only(top: 48, left: 16),
@@ -347,7 +364,7 @@ class _ReadNewsState extends State<ReadNews> {
                     Navigator.pop(context);
                   }),
               IconButton(
-                icon: (user.existArticle(widget.title))
+                icon: (user.existArticle(widget.article))
                     ? Icon(
                         Icons.bookmark,
                         color: Colors.white,
@@ -360,11 +377,10 @@ class _ReadNewsState extends State<ReadNews> {
                       ),
                 onPressed: () {
                   setState(() {
-                    if (user.existArticle(widget.title))
-                      user.removeArticle(widget.title);
+                    if (user.existArticle(widget.article))
+                      user.removeArticle(widget.article);
                     else
-                      user.addArticle(
-                          Article(widget.title, news_dict[widget.title]));
+                      user.addArticle(widget.article);
                   });
                   widget.callback();
                 },
@@ -401,7 +417,7 @@ class _ReadNewsState extends State<ReadNews> {
 
                 //Title
                 Text(
-                  widget.title ?? "",
+                  widget.article?.title ?? "",
                   style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
@@ -414,10 +430,10 @@ class _ReadNewsState extends State<ReadNews> {
 
                 //Paragraph
                 need_hl == 1
-                    ? Text.rich(getSpan(context, news_dict[widget.title],
-                        all_key_words[widget.title]))
+                    ? Text.rich(getSpan(context, widget.article.content,
+                        widget.article.keywords))
                     : Text(
-                        news_dict[widget.title] ?? "",
+                        widget.article.content ?? "",
                         style: TextStyle(
                           color: Colors.black54,
                           fontSize: 16.5,
@@ -448,20 +464,17 @@ class _ReadNewsState extends State<ReadNews> {
 
             //Bottom Sheet
             Container(
-              //Bottom Sheet Dimensions
-              margin: EdgeInsets.only(top: height / 4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(40),
-                    topRight: Radius.circular(40)),
-              ),
+                //Bottom Sheet Dimensions
+                margin: EdgeInsets.only(top: height / 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(40),
+                      topRight: Radius.circular(40)),
+                ),
 
-              // child: bottomContent(height, width),
-              child: widget.title == '美国监管机构批准辉瑞新冠疫苗，下周开始接种'
-                  ? bottomContent(height, width, 1, context)
-                  : bottomContent(height, width, 0, context),
-            ),
+                // child: bottomContent(height, width),
+                child: bottomContent(height, width, 1, context)),
           ],
         ),
       ),
