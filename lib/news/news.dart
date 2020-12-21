@@ -311,14 +311,20 @@ class _ReadNewsState extends State<ReadNews> {
       }
     }
     return TextSpan(
-      text: full_text[0],
+      text: full_text.characters.first,
       // style: the_words.containsKey(currentWord)
       //     ? the_words[currentWord].textStyle
       //     : defaultStyle,
       style: to_default == 1 ? defaultStyle : null,
       children: [
-        buildSpan(context, full_text.substring(1, full_text.length),
-            key_words_list, hash_map, defaultStyle, 0),
+        buildSpan(
+            context,
+            full_text.substring(
+                full_text.characters.first.length, full_text.length),
+            key_words_list,
+            hash_map,
+            defaultStyle,
+            0),
       ],
       recognizer: null,
     );
