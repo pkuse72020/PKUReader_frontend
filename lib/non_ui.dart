@@ -14,7 +14,7 @@ part 'non_ui.g.dart';
 Account user;
 Box<Account> box;
 const String userBox = 'user_box_1';
-const timeout = Duration(seconds: 10);
+const timeout = Duration(seconds: 15);
 
 const rootUrl = 'http://39.98.93.128:5000';
 const loginUrl = rootUrl + '/user/login';

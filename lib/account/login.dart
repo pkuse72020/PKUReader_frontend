@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import '../app_theme.dart';
 import 'register.dart';
 import '../non_ui.dart';
 
 class LoginPage extends StatefulWidget {
+  final Function callback;
+
+  LoginPage({this.callback});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -55,23 +60,28 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Form(
         key: formKey,
-        child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 22.0),
-          children: <Widget>[
-            SizedBox(
-              height: kToolbarHeight,
-            ),
-            buildTitle(),
-            SizedBox(height: 60.0),
-            buildAccount(),
-            SizedBox(height: 30.0),
-            buildPassword(context),
-            buildForgetPassword(context),
-            SizedBox(height: 60.0),
-            buildLoginButton(context),
-            SizedBox(height: 10.0),
-            buildRegister(context),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            // padding: EdgeInsets.symmetric(horizontal: 22.0),
+            children: <Widget>[
+              // SizedBox(
+              //   height: kToolbarHeight,
+              // ),
+              Hero(tag: 'logo', child: buildTitle()),
+              // SizedBox(height: 60.0),
+              Hero(tag: 'user_name', child: Material(child: buildAccount())),
+              // SizedBox(height: 30.0),
+              Hero(
+                  tag: 'password',
+                  child: Material(child: buildPassword(context))),
+              // SizedBox(height: 60.0),
+              Hero(tag: 'button', child: buildLoginButton(context)),
+              // SizedBox(height: 10.0),
+              buildRegister(context),
+            ],
+          ),
         ),
       ),
     );
@@ -85,15 +95,16 @@ class _LoginPageState extends State<LoginPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('没有账号?'),
+            Text('没有账号? '),
             GestureDetector(
               child: Text(
                 '点击注册',
-                style: TextStyle(color: Colors.blue),
+                style: TextStyle(color: AppTheme.pkuReaderPurple),
               ),
               onTap: () {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (BuildContext context) => RegisterPage()));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => RegisterPage(),
+                    fullscreenDialog: true));
               },
             ),
           ],
@@ -109,10 +120,13 @@ class _LoginPageState extends State<LoginPage> {
         width: 270.0,
         child: RaisedButton(
           child: Text(
-            'Login',
-            style: Theme.of(context).primaryTextTheme.headline,
+            '登录',
+            style: Theme.of(context)
+                .primaryTextTheme
+                .headline5
+                .copyWith(fontWeight: FontWeight.w500, letterSpacing: 0.0),
           ),
-          color: Colors.blue[300],
+          color: AppTheme.pkuReaderPurple,
           onPressed: () {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
@@ -133,31 +147,13 @@ class _LoginPageState extends State<LoginPage> {
               }).whenComplete(() {
                 if (connected) {
                   //TODO 回到主界面
+                  widget.callback();
                   Navigator.of(context).pop();
                 }
               });
             }
           },
           shape: StadiumBorder(),
-        ),
-      ),
-    );
-  }
-
-  Padding buildForgetPassword(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: FlatButton(
-          child: Text(
-            '忘记密码？',
-            style: TextStyle(fontSize: 14.0, color: Colors.grey),
-          ),
-          onPressed: () {
-            //TODO 可能没这功能
-            //Navigator.pop(context);
-          },
         ),
       ),
     );
@@ -174,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       },
       decoration: InputDecoration(
-        labelText: 'Password',
+        labelText: '密码',
         suffixIcon: IconButton(
             icon: Icon((isObscure) ? Icons.visibility_off : Icons.visibility),
             onPressed: () {
@@ -192,11 +188,11 @@ class _LoginPageState extends State<LoginPage> {
       onSaved: (String value) => account = value,
       validator: (String value) {
         if (value.isEmpty) {
-          return '请输入账户';
+          return '请输入用户名';
         }
       },
       decoration: InputDecoration(
-          labelText: 'Account',
+          labelText: '用户名',
           suffixIcon: (isEmpty)
               ? IconButton(
                   icon: Icon(
@@ -212,13 +208,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Padding buildTitle() {
-    return Padding(
-      padding: EdgeInsets.all(8.0),
-      child: Text(
-        'Login',
-        style: TextStyle(fontSize: 48.0),
-      ),
+  Widget buildTitle() {
+    return Container(
+      height: (MediaQuery.of(context).size.height -
+              MediaQuery.of(context).viewInsets.bottom) /
+          3.5,
+      child: Image.asset('assets/images/pku_reader_cut.png'),
     );
   }
 }

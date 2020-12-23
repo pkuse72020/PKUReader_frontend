@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pkureader_frontend/app_theme.dart';
 import 'login.dart';
 import '../non_ui.dart';
 
@@ -57,23 +58,34 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       body: Form(
         key: formKey,
-        child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 22.0),
-          children: <Widget>[
-            SizedBox(
-              height: kToolbarHeight,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Hero(tag: 'logo', child: buildTitle()),
+                  Hero(
+                      tag: 'user_name', child: Material(child: buildAccount())),
+                  Hero(
+                      tag: 'password',
+                      child: Material(child: buildPassword(context))),
+                  buildRePassword(context),
+                  Hero(tag: 'button', child: buildRegisterButton(context)),
+                  // SizedBox(height: 10.0),
+                  // buildLogin(context),
+                ],
+              ),
             ),
-            buildTitle(),
-            SizedBox(height: 60.0),
-            buildAccount(),
-            SizedBox(height: 30.0),
-            buildPassword(context),
-            SizedBox(height: 30.0),
-            buildRePassword(context),
-            SizedBox(height: 60.0),
-            buildRegisterButton(context),
-            SizedBox(height: 10.0),
-            buildLogin(context),
+            SafeArea(
+                child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: IconButton(
+                icon: Icon(Icons.arrow_back_ios),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ))
           ],
         ),
       ),
@@ -112,10 +124,13 @@ class _RegisterPageState extends State<RegisterPage> {
         width: 270.0,
         child: RaisedButton(
           child: Text(
-            'Register',
-            style: Theme.of(context).primaryTextTheme.headline,
+            '注册',
+            style: Theme.of(context)
+                .primaryTextTheme
+                .headline5
+                .copyWith(fontWeight: FontWeight.w500, letterSpacing: 0.0),
           ),
-          color: Colors.blue[300],
+          color: AppTheme.pkuReaderPurple,
           onPressed: () {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
@@ -143,26 +158,24 @@ class _RegisterPageState extends State<RegisterPage> {
     return TextFormField(
       controller: repwdController,
       //onSaved: (String value) => repassword = value,
-      //obscureText: isObscure,
-      obscureText: true,
+      obscureText: isObscure,
+      // obscureText: true,
       validator: (String value) {
         if (value.isEmpty) {
-          return '请输入密码';
+          return '密码不能为空';
         } else if (value != pwdController.text) {
           return '两次输入的密码不一致';
         }
       },
       decoration: InputDecoration(
-        labelText: 'Confirm Password',
-//        suffixIcon: IconButton(
-//            icon: Icon(
-//                (isObscure) ? Icons.visibility_off : Icons.visibility
-//            ),
-//            onPressed: () {
-//              setState(() {
-//                isObscure = !isObscure;
-//              });
-//            }),
+        labelText: '确认密码',
+        suffixIcon: IconButton(
+            icon: Icon((isObscure) ? Icons.visibility_off : Icons.visibility),
+            onPressed: () {
+              setState(() {
+                isObscure = !isObscure;
+              });
+            }),
       ),
     );
   }
@@ -174,11 +187,11 @@ class _RegisterPageState extends State<RegisterPage> {
       obscureText: isObscure,
       validator: (String value) {
         if (value.isEmpty) {
-          return '请输入密码';
+          return '密码不能为空';
         }
       },
       decoration: InputDecoration(
-        labelText: 'Password',
+        labelText: '密码',
         suffixIcon: IconButton(
             icon: Icon((isObscure) ? Icons.visibility_off : Icons.visibility),
             onPressed: () {
@@ -196,11 +209,11 @@ class _RegisterPageState extends State<RegisterPage> {
       onSaved: (String value) => account = value,
       validator: (String value) {
         if (value.isEmpty) {
-          return '请输入账户';
+          return '用户名不能为空';
         }
       },
       decoration: InputDecoration(
-          labelText: 'Account',
+          labelText: '用户名',
           suffixIcon: (isEmpty)
               ? IconButton(
                   icon: Icon(
@@ -217,13 +230,11 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Padding buildTitle() {
-    return Padding(
-      padding: EdgeInsets.all(8.0),
-      child: Text(
-        'Register',
-        style: TextStyle(fontSize: 48.0),
-      ),
+  Widget buildTitle() {
+    return Container(
+      height: (MediaQuery.of(context).size.height -
+              MediaQuery.of(context).viewInsets.bottom) / 4,
+      child: Image.asset('assets/images/pku_reader_cut.png'),
     );
   }
 }

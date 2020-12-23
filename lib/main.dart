@@ -33,7 +33,7 @@ class PkuReader extends StatelessWidget {
       title: 'Flutter UI',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: AppTheme.pkuReaderPurpleMaterial,
         textTheme: AppTheme.textTheme,
         // platform: TargetPlatform.iOS,
       ),

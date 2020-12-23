@@ -1,5 +1,6 @@
 import 'package:pkureader_frontend/news/news.dart';
 
+import 'about.dart';
 import 'app_theme.dart';
 import 'home_screen.dart';
 import 'package:pkureader_frontend/drawer/drawer_user_controller.dart';
@@ -72,13 +73,21 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
             screenView = AccountManager();
           });
         }
-      } else if (drawerIndex == DrawerIndex.Help) {
+      } else if (drawerIndex == DrawerIndex.FavArticles) {
         setState(() {
-          screenView = HelpScreen();
+          screenView = SubscrManager(SubscrType.article);
         });
-      } else if (drawerIndex == DrawerIndex.FeedBack) {
+      } else if (drawerIndex == DrawerIndex.RssSources) {
         setState(() {
-          screenView = FeedbackScreen();
+          screenView = SubscrManager(SubscrType.rss);
+        });
+      } else if (drawerIndex == DrawerIndex.Post) {
+        setState(() {
+          screenView = SubmitPage();
+        });
+      } else if (drawerIndex == DrawerIndex.About) {
+        setState(() {
+          screenView = About();
         });
       } else {
         //do in your way......

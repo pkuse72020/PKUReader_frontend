@@ -4,6 +4,7 @@ class AppTheme {
   AppTheme._();
 
   static const Color notWhite = Color(0xFFEDF0F2);
+  // static const Color notWhite = Colors.blue;
   static const Color nearlyWhite = Color(0xFFFEFEFE);
   static const Color white = Color(0xFFFFFFFF);
   static const Color nearlyBlack = Color(0xFF213333);
@@ -19,6 +20,27 @@ class AppTheme {
   static const Color spacer = Color(0xFFF2F2F2);
   static const String fontName = 'WorkSans';
 
+  static const Color pkuReaderPurple = Color(0xff677bd6);
+  static const Color pkuReaderPurpleLight = Color(0xff9aaaff);
+  static const Color pkuReaderPurpleDark = Color(0xff314fa4);
+
+  static const MaterialColor pkuReaderPurpleMaterial = MaterialColor(0xff677bd5, {
+    50: Color(0xffe6e8f8),
+    100: Color(0xffbfc5ed),
+    200: Color(0xff94a0e1),
+    300: Color(0xff677bd5),
+    400: Color(0xff415ecc),
+    500: Color(0xff0e43bf),
+    600: Color(0xff023bb5),
+    700: Color(0xff0031a8),
+    800: Color(0xff00279c),
+    900: Color(0xff001486),
+  });
+
+  static const Color pkuReaderBlue = Color(0xff47ccf5);
+  static const Color pkuReaderBlueLight = Color(0xff85ffff);
+  static const Color pkuReaderBlueDark = Color(0xff009bc2);
+
   static const TextTheme textTheme = TextTheme(
     headline4: display1,
     headline5: headline,
@@ -29,7 +51,8 @@ class AppTheme {
     caption: caption,
   );
 
-  static const TextStyle display1 = TextStyle( // h4 -> display1
+  static const TextStyle display1 = TextStyle(
+    // h4 -> display1
     fontFamily: fontName,
     fontWeight: FontWeight.bold,
     fontSize: 36,
@@ -38,7 +61,8 @@ class AppTheme {
     color: darkerText,
   );
 
-  static const TextStyle headline = TextStyle( // h5 -> headline
+  static const TextStyle headline = TextStyle(
+    // h5 -> headline
     fontFamily: fontName,
     fontWeight: FontWeight.bold,
     fontSize: 24,
@@ -46,7 +70,8 @@ class AppTheme {
     color: darkerText,
   );
 
-  static const TextStyle title = TextStyle( // h6 -> title
+  static const TextStyle title = TextStyle(
+    // h6 -> title
     fontFamily: fontName,
     fontWeight: FontWeight.bold,
     fontSize: 16,
@@ -54,7 +79,8 @@ class AppTheme {
     color: darkerText,
   );
 
-  static const TextStyle subtitle = TextStyle( // subtitle2 -> subtitle
+  static const TextStyle subtitle = TextStyle(
+    // subtitle2 -> subtitle
     fontFamily: fontName,
     fontWeight: FontWeight.w400,
     fontSize: 14,
@@ -62,7 +88,8 @@ class AppTheme {
     color: darkText,
   );
 
-  static const TextStyle body2 = TextStyle( // body1 -> body2
+  static const TextStyle body2 = TextStyle(
+    // body1 -> body2
     fontFamily: fontName,
     fontWeight: FontWeight.w400,
     fontSize: 14,
@@ -70,7 +97,8 @@ class AppTheme {
     color: darkText,
   );
 
-  static const TextStyle body1 = TextStyle( // body2 -> body1
+  static const TextStyle body1 = TextStyle(
+    // body2 -> body1
     fontFamily: fontName,
     fontWeight: FontWeight.w400,
     fontSize: 16,
@@ -78,12 +106,12 @@ class AppTheme {
     color: darkText,
   );
 
-  static const TextStyle caption = TextStyle( // Caption -> caption
+  static const TextStyle caption = TextStyle(
+    // Caption -> caption
     fontFamily: fontName,
     fontWeight: FontWeight.w400,
     fontSize: 12,
     letterSpacing: 0.2,
     color: lightText, // was lightText
   );
-
 }

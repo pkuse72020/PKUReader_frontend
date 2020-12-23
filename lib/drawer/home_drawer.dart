@@ -1,3 +1,4 @@
+import 'package:pkureader_frontend/account/login.dart';
 import 'package:pkureader_frontend/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -28,34 +29,48 @@ class _HomeDrawerState extends State<HomeDrawer> {
   }
 
   void setDrawerListArray() {
-    drawerList = <DrawerList>[
-      DrawerList(
-        index: DrawerIndex.HOME,
-        labelName: '首页',
-        icon: Icon(Icons.home),
-      ),
-      DrawerList(
-        index: DrawerIndex.Help,
-        labelName: '帮助',
-        isAssetsImage: true,
-        imageName: 'assets/images/supportIcon.png',
-      ),
-      DrawerList(
-        index: DrawerIndex.FeedBack,
-        labelName: '反馈',
-        icon: Icon(Icons.help),
-      ),
-      DrawerList(
-        index: DrawerIndex.Share,
-        labelName: '评分',
-        icon: Icon(Icons.share),
-      ),
-      DrawerList(
-        index: DrawerIndex.About,
-        labelName: '关于我们',
-        icon: Icon(Icons.info),
-      ),
-    ];
+    if (user != null) {
+      drawerList = <DrawerList>[
+        DrawerList(
+          index: DrawerIndex.HOME,
+          labelName: '首页',
+          icon: Icon(Icons.home),
+        ),
+        DrawerList(
+          index: DrawerIndex.FavArticles,
+          labelName: '我的收藏',
+          icon: Icon(Icons.bookmark),
+        ),
+        DrawerList(
+          index: DrawerIndex.RssSources,
+          labelName: '我的订阅',
+          icon: Icon(Icons.source),
+        ),
+        DrawerList(
+          index: DrawerIndex.Post,
+          labelName: '发布',
+          icon: Icon(Icons.add_link),
+        ),
+        DrawerList(
+          index: DrawerIndex.About,
+          labelName: '关于',
+          icon: Icon(Icons.info),
+        ),
+      ];
+    } else {
+      drawerList = <DrawerList>[
+        DrawerList(
+          index: DrawerIndex.HOME,
+          labelName: '首页',
+          icon: Icon(Icons.home),
+        ),
+        DrawerList(
+          index: DrawerIndex.About,
+          labelName: '关于',
+          icon: Icon(Icons.info),
+        ),
+      ];
+    }
   }
 
   @override
@@ -115,9 +130,15 @@ class _HomeDrawerState extends State<HomeDrawer> {
                                     : Image.asset(
                                         'assets/images/userImage.png'),
                               ),
-                              onPressed: () {
-                                navigationtoScreen(DrawerIndex.AccountManager);
-                              },
+                              onPressed: user == null
+                                  ? () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) => LoginPage(
+                                                  callback:
+                                                      setDrawerListArray)));
+                                    }
+                                  : null,
                             ),
                           ),
                         ),
@@ -169,7 +190,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
               children: <Widget>[
                 ListTile(
                   title: Text(
-                    'Sign Out',
+                    '注销',
                     style: TextStyle(
                       fontFamily: AppTheme.fontName,
                       fontWeight: FontWeight.w600,
@@ -180,13 +201,14 @@ class _HomeDrawerState extends State<HomeDrawer> {
                   ),
                   trailing: Icon(
                     Icons.power_settings_new,
-                    color: Colors.red,
+                    color: AppTheme.pkuReaderPurple,
                   ),
                   onTap: user == null
                       ? null
-                      : () {
+                      : () async {
+                          await Account.logOut();
                           setState(() {
-                            Account.logOut();
+                            setDrawerListArray();
                           });
                           if (widget.screenIndex == DrawerIndex.AccountManager)
                             navigationtoScreen(DrawerIndex.HOME);
@@ -247,7 +269,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                         )
                       : Icon(listData.icon.icon,
                           color: widget.screenIndex == listData.index
-                              ? Colors.blue
+                              ? AppTheme.pkuReaderPurple
                               : AppTheme.nearlyBlack),
                   const Padding(
                     padding: EdgeInsets.all(4.0),
@@ -258,7 +280,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
                       color: widget.screenIndex == listData.index
-                          ? Colors.blue
+                          ? AppTheme.pkuReaderPurple
                           : AppTheme.nearlyBlack,
                     ),
                     textAlign: TextAlign.left,
@@ -285,7 +307,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                                 MediaQuery.of(context).size.width * 0.75 - 64,
                             height: 46,
                             decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.2),
+                              color: AppTheme.pkuReaderPurple.withOpacity(0.2),
                               borderRadius: new BorderRadius.only(
                                 topLeft: Radius.circular(0),
                                 topRight: Radius.circular(28),
@@ -318,7 +340,10 @@ enum DrawerIndex {
   About,
   Invite,
   Testing,
-  AccountManager
+  AccountManager,
+  RssSources,
+  FavArticles,
+  Post
 }
 
 class DrawerList {

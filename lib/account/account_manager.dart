@@ -37,7 +37,7 @@ class CustomScaffold extends StatelessWidget {
           SafeArea(
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                  const EdgeInsets.symmetric(vertical: 18.0, horizontal: 8.0),
               child: Column(
                 children: [
                   Row(
@@ -45,11 +45,13 @@ class CustomScaffold extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios),
+                        color: Navigator.of(context).canPop() ? null : Color(0),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                       Text(
                         name,
                         style: TextStyle(
+                            // color: Colors.white,
                             fontSize: 24.0,
                             letterSpacing: 0.0,
                             fontWeight: FontWeight.w500),
@@ -78,32 +80,25 @@ class CustomScaffold extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Padding(
+            child: Container(
+              height: height,
+              decoration: BoxDecoration(
+                borderRadius:
+                    BorderRadiusDirectional.all(Radius.circular(40.0)),
+                boxShadow: [
+                  BoxShadow(color: Color(0x3f000000), blurRadius: 20.0)
+                ],
+              ),
+              child: Material(
+                color: AppTheme.nearlyWhite,
+                borderRadius: BorderRadiusDirectional.only(
+                    topStart: Radius.circular(40.0),
+                    topEnd: Radius.circular(40.0)),
+                child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: height,
-                    decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadiusDirectional.all(Radius.circular(40.0)),
-                      boxShadow: [
-                        BoxShadow(color: Color(0x2f000000), blurRadius: 6.0)
-                      ],
-                    ),
-                    child: Material(
-                      color: AppTheme.nearlyWhite,
-                      borderRadius:
-                          BorderRadiusDirectional.all(Radius.circular(40.0)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: body,
-                      ),
-                    ),
-                  ),
+                  child: body,
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -130,106 +125,47 @@ class AccountManager extends StatelessWidget {
                 'https://github.com/pkuse72020/pkureader_frontend/issues'
                 ' 向 PKU Reader 的开发者提交错误报告。')),
       );
-    return Container(
-      color: AppTheme.nearlyWhite,
-      child: SafeArea(
-        top: false,
-        child: Scaffold(
-          body: Column(
-            children: [
-              Column(
-                children: [
-                  SizedBox(
-                    height: 60.0,
-                  ),
-                  Container(
-                    width: 180.0,
-                    height: 180.0,
-                    decoration:
-                        BoxDecoration(shape: BoxShape.circle, boxShadow: [
-                      BoxShadow(
-                          blurRadius: 8.0,
-                          color: AppTheme.grey.withOpacity(0.4),
-                          offset: Offset(4.0, 8.0))
-                    ]),
-                    child: ClipRRect(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(90.0)),
-                        child: Image.asset(
-                          'assets/images/userImage.png',
-                        )),
-                  ),
-                  SizedBox(
-                    height: 36.0,
-                  ),
-                  Text(user.userName,
-                      style: TextStyle(
-                          fontSize: 24.0, fontWeight: FontWeight.w300)),
-                  Text(
-                    'ID: ${user.userId}',
-                    style: TextStyle(fontWeight: FontWeight.w100),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    margin: EdgeInsets.only(top: 12.0),
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: const Color(0x2f000000), blurRadius: 6.0)
-                      ],
-                      borderRadius:
-                          BorderRadiusDirectional.all(Radius.circular(40.0)),
-                    ),
-                    child: Material(
-                      color: AppTheme.nearlyWhite,
-                      borderRadius:
-                          BorderRadiusDirectional.all(Radius.circular(40.0)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView(
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.source),
-                              title: Text('已订阅 RSS 源'),
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        SubscrManager(SubscrType.rss)));
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.star),
-                              title: Text('已收藏文章'),
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        SubscrManager(SubscrType.article)));
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.add_link),
-                              title: Text('发布'),
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => SubmitPage()));
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: AppTheme.notWhite,
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 60.0,
+            ),
+            Container(
+              width: 180.0,
+              height: 180.0,
+              decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
+                BoxShadow(
+                    blurRadius: 8.0,
+                    color: AppTheme.grey.withOpacity(0.4),
+                    offset: Offset(4.0, 8.0))
+              ]),
+              child: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(90.0)),
+                  child: Image.asset(
+                    'assets/images/userImage.png',
+                  )),
+            ),
+            SizedBox(
+              height: 36.0,
+            ),
+            Text(user.userName,
+                style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white)),
+            Text(
+              'ID: ${user.userId}',
+              style:
+                  TextStyle(fontWeight: FontWeight.w300, color: Colors.white),
+            ),
+          ],
         ),
       ),
+      backgroundColor: Color(0xff677CD5),
+      // backgroundColor: Colors.grey,
     );
   }
 }
@@ -315,10 +251,12 @@ class _SubscrManagerState extends State<SubscrManager> {
           setState(() {});
         },
       ),
-      nextPageIcon: Icons.add,
-      nextPage: NewSubscrPage(widget.type, () {
-        setState(() {});
-      }),
+      nextPageIcon: widget.type == SubscrType.rss ? Icons.add : null,
+      nextPage: widget.type == SubscrType.rss
+          ? NewSubscrPage(SubscrType.rss, () {
+              setState(() {});
+            })
+          : null,
     );
   }
 }
@@ -367,87 +305,80 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-        name: widget.type == SubscrType.rss ? '订阅新 RSS 源' : '收藏新文章',
-        middle: Container(
-          padding: EdgeInsets.all(8.0),
-          child: TextField(
-            controller: controller,
-            decoration:
-                InputDecoration(hintText: '搜索', icon: const Icon(Icons.search)),
-          ),
+      name: widget.type == SubscrType.rss ? '订阅新 RSS 源' : '收藏新文章',
+      middle: Container(
+        padding: EdgeInsets.all(8.0),
+        child: TextField(
+          controller: controller,
+          decoration:
+              InputDecoration(hintText: '搜索', icon: const Icon(Icons.search),
+              suffixIcon: controller.text.isEmpty ? null : IconButton(icon: const Icon(Icons.clear),
+              onPressed: () => controller.clear(),)),
+
         ),
-        body: widget.type == SubscrType.rss
-            ? FutureBuilder(
-                future: srcList,
-                builder: (context, AsyncSnapshot<Iterable<Source>> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.hasError)
-                      return Center(child: Text(snapshot.error.toString()));
-                    return ListView(
-                        children: snapshot.data
-                            .where((element) => !user.hasSource(element))
-                            .where((element) => element.name
-                                .toLowerCase()
-                                .contains(controller.text.toLowerCase()))
-                            .map((e) => ListTile(
-                                  title: Text(e.name),
-                                  subtitle: Text(e.url),
-                                  onTap: () async {
-                                    try {
-                                      await user.addSource(e);
-                                    } catch (e) {
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                                title: Text('异常'),
-                                                content: Text(e.toString()),
-                                              ));
-                                    }
-                                    setState(() {});
-                                    widget.callback();
-                                  },
-                                ))
-                            .toList());
-                  } else {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox.expand(),
-                        CircularProgressIndicator()
-                      ],
-                    );
-                  }
-                })
-            : ListView(
-                children: user.newsCache
-                    .where((element) => !user.favArticles.contains(element))
-                    .where((element) => element.title.contains(controller.text))
-                    .map((e) => ListTile(
-                          title: Text(e.title),
-                          onTap: () async {
-                            try {
-                              await user.addArticle(e);
-                            } catch (e) {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                        title: Text('异常'),
-                                        content: Text(e.toString()),
-                                      ));
-                            }
-                            setState(() {});
-                            widget.callback();
-                          },
-                        ))
-                    .toList()),
-        button: widget.type == SubscrType.rss
-            ? null
-            : FloatingActionButton(
-                child: const Icon(Icons.refresh),
-                onPressed: () async {
-                  await user.getNews();
-                  setState(() {});
-                }));
+      ),
+      body: widget.type == SubscrType.rss
+          ? FutureBuilder(
+              future: srcList,
+              builder: (context, AsyncSnapshot<Iterable<Source>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasError)
+                    return Center(child: Text(snapshot.error.toString()));
+                  return ListView(
+                      children: snapshot.data
+                          .where((element) => !user.hasSource(element))
+                          .where((element) => element.name
+                              .toLowerCase()
+                              .contains(controller.text.toLowerCase()))
+                          .map((e) => ListTile(
+                                title: Text(e.name),
+                                subtitle: Text(e.url),
+                                onTap: () async {
+                                  try {
+                                    await user.addSource(e);
+                                  } catch (e) {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                              title: Text('异常'),
+                                              content: Text(e.toString()),
+                                            ));
+                                  }
+                                  setState(() {});
+                                  widget.callback();
+                                },
+                              ))
+                          .toList());
+                } else {
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [SizedBox.expand(), CircularProgressIndicator()],
+                  );
+                }
+              })
+          : ListView(
+              children: user.newsCache
+                  .where((element) => !user.favArticles.contains(element))
+                  .where((element) => element.title.contains(controller.text))
+                  .map((e) => ListTile(
+                        title: Text(e.title),
+                        onTap: () async {
+                          try {
+                            await user.addArticle(e);
+                          } catch (e) {
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      title: Text('异常'),
+                                      content: Text(e.toString()),
+                                    ));
+                          }
+                          setState(() {});
+                          widget.callback();
+                        },
+                      ))
+                  .toList()),
+    );
   }
 }
 
@@ -458,6 +389,8 @@ class SubmitPage extends StatefulWidget {
 }
 
 class _SubmitPageState extends State<SubmitPage> {
+  final _nameController = TextEditingController();
+  final _urlController = TextEditingController();
   String sourceName;
   String url;
   final _key = GlobalKey<FormState>();
@@ -475,22 +408,50 @@ class _SubmitPageState extends State<SubmitPage> {
                   child: Column(
                     children: [
                       TextFormField(
-                        decoration: InputDecoration(hintText: 'RSS 源名称'),
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                            labelText: 'RSS 源名称',
+                            suffixIcon: _nameController.text.isEmpty
+                                ? null
+                                : IconButton(
+                                    icon: Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _nameController.clear();
+                                      });
+                                    })),
                         validator: (value) {
-                          if (value.isEmpty) return '请输入源名称';
+                          if (value.isEmpty) return '源名称不能为空';
                           return null;
                         },
                         onSaved: (newValue) => sourceName = newValue,
+                        onChanged: (str) {
+                          setState(() {});
+                        },
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: TextFormField(
-                          decoration: InputDecoration(hintText: 'RSS URL'),
+                          controller: _urlController,
+                          decoration: InputDecoration(
+                              labelText: 'RSS URL',
+                              suffixIcon: _urlController.text.isEmpty
+                                  ? null
+                                  : IconButton(
+                                      icon: Icon(Icons.clear),
+                                      onPressed: () {
+                                        setState(() {
+                                          _urlController.clear();
+                                        });
+                                      })),
                           validator: (value) {
-                            if (value.isEmpty) return '请输入 RSS URL';
+                            if (value.isEmpty) return 'RSS URL 不能为空';
                             return null;
                           },
                           onSaved: (newValue) => url = newValue,
+                          onChanged: (str) {
+                            setState(() {});
+                          },
                         ),
                       ),
                       TextButton(
@@ -510,6 +471,8 @@ class _SubmitPageState extends State<SubmitPage> {
                               }
 
                               _key.currentState.reset();
+                              _nameController.clear();
+                              _urlController.clear();
                             }
                           },
                           child: Text('提交'))

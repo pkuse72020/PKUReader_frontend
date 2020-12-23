@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pkureader_frontend/app_theme.dart';
 
 import '../non_ui.dart';
 import '../main.dart';
@@ -28,71 +29,69 @@ class _BrowseNewsState extends State<BrowseNews> {
   }
 
   //List Item
-  Widget getListItem(coverImage, title) => Container(
+  Widget getListItem(coverImage, article) => Container(
         margin: EdgeInsets.only(right: 0),
         height: 250,
         width: 350,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.elliptical(20, 20)),
+          borderRadius: BorderRadius.all(Radius.circular(12.0)),
           image: DecorationImage(
               image: new ExactAssetImage(coverImage), fit: BoxFit.cover),
         ),
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 20.0, right: 20, top: 20, bottom: 10),
-              child: Stack(
-                alignment: Alignment.bottomLeft,
-                children: <Widget>[
-                  Text(
-                    title,
-                    style: TextStyle(
-                        fontSize: 24,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                    maxLines: 6,
-                  )
-                ],
-              ),
+        child: Material(
+          color: Color(0),
+                  child: InkResponse(
+                    containedInkWell: true,
+                    highlightShape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(12.0),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => new ReadNews(article: article))),
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 20.0, right: 20, top: 20, bottom: 10),
+                  child: Stack(
+                    alignment: Alignment.bottomLeft,
+                    children: <Widget>[
+                      Text(
+                        article.title,
+                        style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                        maxLines: 6,
+                      )
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       );
 
   Widget getOneArticle(int i) => Container(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
-        child: InkWell(
-            hoverColor: Colors.white70,
-            enableFeedback: true,
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          new ReadNews(article: user.newsCache[i])));
-            },
-            child: getListItem(
-                // TODO Use proper pictures.
-                'assets/images/article/pkulibrary.jpeg', //picture
-                user.newsCache[i].title) //title
-            ),
+        child: getListItem(
+            // TODO Use proper pictures.
+            'assets/images/article/pkulibrary.jpeg', //picture
+            user.newsCache[i]),
       );
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: Container(
-        margin: EdgeInsets.all(4),
+      backgroundColor: AppTheme.notWhite,
+      body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            SizedBox(
-              height: 30,
-            ),
             Padding(
               padding:
-                  const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
+                  const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 8),
               child: Row(
                 children: <Widget>[
                   Expanded(
@@ -100,6 +99,8 @@ class _BrowseNewsState extends State<BrowseNews> {
                       padding:
                           const EdgeInsets.only(right: 16, top: 8, bottom: 8),
                       child: Container(
+                        margin: EdgeInsets.only(
+                            left: AppBar().preferredSize.height - 8),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFFFFF),
                           borderRadius: const BorderRadius.all(
@@ -132,7 +133,7 @@ class _BrowseNewsState extends State<BrowseNews> {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: HexColor('#54D3C2'),
+                      color: AppTheme.pkuReaderPurple,
                       borderRadius: const BorderRadius.all(
                         Radius.circular(38.0),
                       ),
@@ -165,32 +166,45 @@ class _BrowseNewsState extends State<BrowseNews> {
             ),
             Expanded(
               child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(color: Color(0x2f000000), blurRadius: 20.0)
+                  ],
+                ),
                 width: 350,
                 height: 665,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RefreshIndicator(
-                    child: ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        itemCount: user.newsCache.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return getOneArticle(
-                              user.newsCache.length - 1 - index);
-                        }),
-                    onRefresh: () async {
-                      try {
-                        await user.getNews();
-                      } catch (e) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text('异常'),
-                            content: Text(e.toString()),
-                          ),
-                        );
-                      }
-                      setState(() {});
-                    },
+                child: Material(
+                  borderRadius: BorderRadiusDirectional.only(
+                      topStart: Radius.circular(40.0),
+                      topEnd: Radius.circular(40.0)),
+                  color: AppTheme.nearlyWhite,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: RefreshIndicator(
+                      child: ListView.builder(
+                          padding: EdgeInsets.only(
+                              top: 48.0, left: 16.0, right: 16.0),
+                          scrollDirection: Axis.vertical,
+                          itemCount: user == null ? 0 : user.newsCache.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return getOneArticle(
+                                user.newsCache.length - 1 - index);
+                          }),
+                      onRefresh: () async {
+                        try {
+                          await user.getNews();
+                        } catch (e) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('异常'),
+                              content: Text(e.toString()),
+                            ),
+                          );
+                        }
+                        setState(() {});
+                      },
+                    ),
                   ),
                 ),
               ),
