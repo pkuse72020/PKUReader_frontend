@@ -40,10 +40,10 @@ class _BrowseNewsState extends State<BrowseNews> {
         ),
         child: Material(
           color: Color(0),
-                  child: InkResponse(
-                    containedInkWell: true,
-                    highlightShape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(12.0),
+          child: InkResponse(
+            containedInkWell: true,
+            highlightShape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(12.0),
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -395,13 +395,12 @@ class _ReadNewsState extends State<ReadNews> {
                         color: Colors.white,
                         size: 28,
                       ),
-                onPressed: () {
-                  setState(() {
-                    if (user.existArticle(widget.article))
-                      user.removeArticle(widget.article);
-                    else
-                      user.addArticle(widget.article);
-                  });
+                onPressed: () async {
+                  if (user.existArticle(widget.article))
+                    await user.removeArticle(widget.article);
+                  else
+                    await user.addArticle(widget.article);
+                  setState(() {});
                   widget.callback();
                 },
               )
