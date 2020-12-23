@@ -18,10 +18,12 @@ class CustomScaffold extends StatelessWidget {
   final Widget middle;
   final double height;
   final Widget button;
+  final bool isPushed;
 
   CustomScaffold(
       {@required this.name,
       @required this.body,
+      @required this.isPushed,
       this.nextPageIcon,
       this.nextPage,
       this.middle = const SizedBox(),
@@ -45,7 +47,7 @@ class CustomScaffold extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios),
-                        color: Navigator.of(context).canPop() ? null : Color(0),
+                        color: isPushed ? null : Color(0),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                       Text(
@@ -108,68 +110,6 @@ class CustomScaffold extends StatelessWidget {
   }
 }
 
-/// An account management page.
-///
-/// It is used to manage subscribed sources and favorite articles. It also
-/// allows the user to submit an RSS source.
-class AccountManager extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    if (user == null)
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('错误'),
-        ),
-        body: Center(
-            child: Text('出现这个页面说明 PKU Reader 出现了错误，可访问 '
-                'https://github.com/pkuse72020/pkureader_frontend/issues'
-                ' 向 PKU Reader 的开发者提交错误报告。')),
-      );
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: 60.0,
-            ),
-            Container(
-              width: 180.0,
-              height: 180.0,
-              decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
-                BoxShadow(
-                    blurRadius: 8.0,
-                    color: AppTheme.grey.withOpacity(0.4),
-                    offset: Offset(4.0, 8.0))
-              ]),
-              child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(90.0)),
-                  child: Image.asset(
-                    'assets/images/userImage.png',
-                  )),
-            ),
-            SizedBox(
-              height: 36.0,
-            ),
-            Text(user.userName,
-                style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white)),
-            Text(
-              'ID: ${user.userId}',
-              style:
-                  TextStyle(fontWeight: FontWeight.w300, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: Color(0xff677CD5),
-      // backgroundColor: Colors.grey,
-    );
-  }
-}
-
 /// A subscription manager.
 ///
 /// The user can use this to discover valid RSS sources and subscribe to them.
@@ -196,7 +136,8 @@ class _SubscrManagerState extends State<SubscrManager> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      name: widget.type == SubscrType.rss ? '已订阅 RSS 源' : '已收藏文章',
+      isPushed: false,
+      name: widget.type == SubscrType.rss ? '我的订阅' : '我的收藏',
       body: RefreshIndicator(
         child: ListView(
             children: widget.type == SubscrType.rss
@@ -305,16 +246,21 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
+      isPushed: true,
       name: widget.type == SubscrType.rss ? '订阅新 RSS 源' : '收藏新文章',
       middle: Container(
         padding: EdgeInsets.all(8.0),
         child: TextField(
           controller: controller,
-          decoration:
-              InputDecoration(hintText: '搜索', icon: const Icon(Icons.search),
-              suffixIcon: controller.text.isEmpty ? null : IconButton(icon: const Icon(Icons.clear),
-              onPressed: () => controller.clear(),)),
-
+          decoration: InputDecoration(
+              hintText: '搜索',
+              icon: const Icon(Icons.search),
+              suffixIcon: controller.text.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => controller.clear(),
+                    )),
         ),
       ),
       body: widget.type == SubscrType.rss
@@ -398,6 +344,7 @@ class _SubmitPageState extends State<SubmitPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
+        isPushed: false,
         name: '发布',
         height: 240.0,
         body: Padding(
@@ -480,5 +427,101 @@ class _SubmitPageState extends State<SubmitPage> {
                     mainAxisSize: MainAxisSize.min,
                   ))),
         ));
+  }
+}
+
+class SubmissionManager extends StatefulWidget {
+  @override
+  _SubmissionManagerState createState() => _SubmissionManagerState();
+}
+
+class _SubmissionManagerState extends State<SubmissionManager> {
+  Future<Iterable<Submission>> pendingList = user.getPending();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScaffold(
+        isPushed: false,
+        name: '待处理申请',
+        body: FutureBuilder(
+            future: pendingList,
+            builder: (context, AsyncSnapshot<Iterable<Submission>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasError)
+                  return Center(child: Text(snapshot.error.toString()));
+                return RefreshIndicator(
+                  child: ListView(
+                      children: snapshot.data
+                          .map((e) => ListTile(
+                                title: Text(e.name),
+                                subtitle:
+                                    Text(e.url),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.check,
+                                        color: AppTheme.pkuReaderPurple,
+                                      ),
+                                      onPressed: () async {
+                                        try {
+                                          await user.approvePending(e);
+                                        } catch (e) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                AlertDialog(
+                                              title: Text('同意申请失败'),
+                                              content: Text(e.toString()),
+                                            ),
+                                          );
+                                        }
+                                        setState(() {
+                                          pendingList = user.getPending();
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(width: 4.0),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.clear,
+                                        color: AppTheme.pkuReaderPurple,
+                                      ),
+                                      onPressed: () async {
+                                        try {
+                                          await user.rejectPending(e);
+                                        } catch (e) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                AlertDialog(
+                                              title: Text('拒绝申请失败'),
+                                              content: Text(e.toString()),
+                                            ),
+                                          );
+                                        }
+                                        setState(() {
+                                          pendingList = user.getPending();
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ))
+                          .toList()),
+                  onRefresh: () async {
+                    pendingList = user.getPending();
+                    setState(() {});
+                    // TODO Use a more user-friendly UI.
+                  },
+                );
+              } else {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [SizedBox.expand(), CircularProgressIndicator()],
+                );
+              }
+            }));
   }
 }

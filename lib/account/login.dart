@@ -60,28 +60,46 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Form(
         key: formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            // padding: EdgeInsets.symmetric(horizontal: 22.0),
-            children: <Widget>[
-              // SizedBox(
-              //   height: kToolbarHeight,
-              // ),
-              Hero(tag: 'logo', child: buildTitle()),
-              // SizedBox(height: 60.0),
-              Hero(tag: 'user_name', child: Material(child: buildAccount())),
-              // SizedBox(height: 30.0),
-              Hero(
-                  tag: 'password',
-                  child: Material(child: buildPassword(context))),
-              // SizedBox(height: 60.0),
-              Hero(tag: 'button', child: buildLoginButton(context)),
-              // SizedBox(height: 10.0),
-              buildRegister(context),
-            ],
-          ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                // padding: EdgeInsets.symmetric(horizontal: 22.0),
+                children: <Widget>[
+                  // SizedBox(
+                  //   height: kToolbarHeight,
+                  // ),
+                  Hero(tag: 'logo', child: buildTitle()),
+                  Hero(
+                      tag: 'user_name', child: Material(child: buildAccount())),
+                  // SizedBox(height: 30.0),
+                  Hero(
+                      tag: 'password',
+                      child: Material(child: buildPassword(context))),
+                  SizedBox(),
+                  Hero(tag: 'button', child: buildLoginButton(context)),
+                  // SizedBox(height: 10.0),
+                  buildRegister(context),
+                ],
+              ),
+            ),
+            SafeArea(
+                child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Hero(
+                tag: 'back',
+                child: Material(
+                  child: IconButton(
+                    splashRadius: 24.0,
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ),
+            ))
+          ],
         ),
       ),
     );

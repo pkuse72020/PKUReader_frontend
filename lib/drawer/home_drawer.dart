@@ -71,6 +71,14 @@ class _HomeDrawerState extends State<HomeDrawer> {
         ),
       ];
     }
+
+    if (user != null && user.isAdmin)
+      drawerList.add(DrawerList(
+        index: DrawerIndex.SubmissionManager,
+        labelName:
+            '待处理申请 ', // A space is added due to the strange line wrapping
+        icon: Icon(Icons.pending_actions),
+      ));
   }
 
   @override
@@ -135,8 +143,8 @@ class _HomeDrawerState extends State<HomeDrawer> {
                                       Navigator.of(context).push(
                                           MaterialPageRoute(
                                               builder: (context) => LoginPage(
-                                                  callback:
-                                                      setDrawerListArray)));
+                                                  callback: setDrawerListArray),
+                                              fullscreenDialog: true));
                                     }
                                   : null,
                             ),
@@ -190,7 +198,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
               children: <Widget>[
                 ListTile(
                   title: Text(
-                    '注销',
+                    '退出登录',
                     style: TextStyle(
                       fontFamily: AppTheme.fontName,
                       fontWeight: FontWeight.w600,
@@ -205,13 +213,33 @@ class _HomeDrawerState extends State<HomeDrawer> {
                   ),
                   onTap: user == null
                       ? null
-                      : () async {
-                          await Account.logOut();
-                          setState(() {
-                            setDrawerListArray();
-                          });
-                          if (widget.screenIndex == DrawerIndex.AccountManager)
-                            navigationtoScreen(DrawerIndex.HOME);
+                      : () {
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text('退出登录'),
+                                    content: Text('退出登录后，本地存储的新闻缓存将丢失。'),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('取消')),
+                                      TextButton(
+                                          onPressed: () async {
+                                            await Account.logOut();
+                                            setState(() {
+                                              setDrawerListArray();
+                                            });
+                                            if (widget.screenIndex ==
+                                                DrawerIndex.AccountManager)
+                                              navigationtoScreen(
+                                                  DrawerIndex.HOME);
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('好')),
+                                    ],
+                                  ));
                         },
                 ),
                 SizedBox(
@@ -343,7 +371,8 @@ enum DrawerIndex {
   AccountManager,
   RssSources,
   FavArticles,
-  Post
+  Post,
+  SubmissionManager
 }
 
 class DrawerList {

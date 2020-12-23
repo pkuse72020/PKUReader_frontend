@@ -26,7 +26,7 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
   void initState() {
     drawerIndex = DrawerIndex.HOME;
     // screenView = const MyHomePage();
-    screenView=new BrowseNews();
+    screenView = new BrowseNews();
     super.initState();
   }
 
@@ -61,17 +61,13 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
       if (drawerIndex == DrawerIndex.HOME) {
         setState(() {
           // screenView = const MyHomePage();
-          screenView= new BrowseNews();
+          screenView = new BrowseNews();
         });
       } else if (drawerIndex == DrawerIndex.AccountManager) {
         if (user == null) {
           drawerIndex = oldIndex;
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => LoginPage()));
-        } else {
-          setState(() {
-            screenView = AccountManager();
-          });
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => LoginPage(), fullscreenDialog: true));
         }
       } else if (drawerIndex == DrawerIndex.FavArticles) {
         setState(() {
@@ -89,8 +85,10 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
         setState(() {
           screenView = About();
         });
-      } else {
-        //do in your way......
+      } else if (drawerIndex == DrawerIndex.SubmissionManager) {
+        setState(() {
+          screenView = SubmissionManager();
+        });
       }
     }
   }

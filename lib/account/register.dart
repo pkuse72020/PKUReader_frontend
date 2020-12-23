@@ -72,6 +72,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       tag: 'password',
                       child: Material(child: buildPassword(context))),
                   buildRePassword(context),
+                  SizedBox(),
                   Hero(tag: 'button', child: buildRegisterButton(context)),
                   // SizedBox(height: 10.0),
                   // buildLogin(context),
@@ -81,9 +82,15 @@ class _RegisterPageState extends State<RegisterPage> {
             SafeArea(
                 child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: IconButton(
-                icon: Icon(Icons.arrow_back_ios),
-                onPressed: () => Navigator.of(context).pop(),
+              child: Hero(
+                tag: 'back',
+                child: Material(
+                  child: IconButton(
+                    splashRadius: 24.0,
+                    icon: const Icon(Icons.arrow_back_ios),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
               ),
             ))
           ],
@@ -232,7 +239,8 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget buildTitle() {
     return Container(
       height: (MediaQuery.of(context).size.height -
-              MediaQuery.of(context).viewInsets.bottom) / 4,
+              MediaQuery.of(context).viewInsets.bottom) /
+          4,
       child: Image.asset('assets/images/pku_reader_cut.png'),
     );
   }

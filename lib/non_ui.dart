@@ -29,6 +29,9 @@ const getRssUrl = rootUrl + '/rssdb/getAllRSS';
 const removeSubscrUrl = rootUrl + '/userfavor/removeFavorRSS';
 const getNewsUrl = rootUrl + '/content/getArticles';
 const submitUrl = rootUrl + '/rssdb/addPendingMsg';
+const getPendingUrl = rootUrl + '/rssdb/getPendingMsg';
+const approvePendingUrl = rootUrl + '/rssdb/approvePendingMsg';
+const rejectPendingUrl = rootUrl + '/rssdb/rejectPendingMsg';
 
 /// An account data structure.
 ///
@@ -56,6 +59,9 @@ class Account extends ChangeNotifier with HiveObject {
   @HiveField(5)
   final List<Article> newsCache;
 
+  @HiveField(6)
+  final bool isAdmin;
+
   get authHeader =>
       'basic ' + convert.base64Encode((token + ':').runes.toList());
 
@@ -65,7 +71,8 @@ class Account extends ChangeNotifier with HiveObject {
       this.userId,
       List<Article> favArticles,
       List<Source> subscrRssSrcs,
-      List<Article> newsCache})
+      List<Article> newsCache,
+      this.isAdmin})
       : favArticles = favArticles ?? List<Article>(),
         subscrRssSrcs = subscrRssSrcs ?? List<Source>(),
         newsCache = newsCache ?? List<Article>();
@@ -225,6 +232,67 @@ class Account extends ChangeNotifier with HiveObject {
     // TODO Implement this.
   }
 
+  Future<Iterable<Submission>> getPending() async {
+    if (!isAdmin) throw Exception('Permission denied');
+
+    final response = await http.get(getPendingUrl).timeout(timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      final Map<String, dynamic> json = convert.jsonDecode(response.body);
+      final String state = json['state'];
+      
+      if (state == 'success')
+        return (json['rst'] as List<dynamic>)
+            .map((e) => Submission.fromJson(e));
+      else
+        throw Exception(json['description']);
+    }
+
+    return null;
+  }
+
+  Future<void> approvePending(Submission submission) async {
+    if (!isAdmin) throw Exception('Permission denied');
+
+    final response = await http.post(approvePendingUrl, headers: {
+      HttpHeaders.authorizationHeader: authHeader
+    }, body: {
+      'administratorId': userId,
+      'pendingMsg_id': submission.internalId.toString()
+    }).timeout(timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      final Map<String, dynamic> json = convert.jsonDecode(response.body);
+      final state = json['state'];
+      if (state != 'success') throw Exception(json['description']);
+    } else {
+      throw Exception('HTTP error ' + response.statusCode.toString());
+    }
+
+    return null;
+  }
+
+  Future<void> rejectPending(Submission submission) async {
+    if (!isAdmin) throw Exception('Permission denied');
+
+    final response = await http.post(rejectPendingUrl, headers: {
+      HttpHeaders.authorizationHeader: authHeader
+    }, body: {
+      'administratorId': userId,
+      'pendingMsg_id': submission.internalId.toString()
+    }).timeout(timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      final Map<String, dynamic> json = convert.jsonDecode(response.body);
+      final state = json['state'];
+      if (state != 'success') throw Exception(json['description']);
+    } else {
+      throw Exception('HTTP error ' + response.statusCode.toString());
+    }
+
+    return null;
+  }
+
   /// Get news based on the user's subscriptions from the server.
   Future<void> getNews() async {
     final response = await http.post(getNewsUrl, headers: {
@@ -261,10 +329,13 @@ class Account extends ChangeNotifier with HiveObject {
         Account account = Account(
             token: jsonResponse["token"],
             userName: userName,
-            userId: jsonResponse["UserId"]);
+            userId: jsonResponse["UserId"],
+            isAdmin: true); // TODO Use the response to indicate the privilege.
         user = account;
         await box.put('user', user);
-        print(account.token);
+        await user.getNews();
+        await user.getFavArticles();
+        await user.getSubscrSrcs();
       }
     }
   }
@@ -379,4 +450,19 @@ class Source {
 
     return null;
   }
+}
+
+class Submission {
+  final int internalId;
+  final String userId;
+  final String name;
+  final String url;
+
+  Submission({this.internalId, this.userId, this.name, this.url});
+
+  factory Submission.fromJson(Map<String, dynamic> json) => Submission(
+      internalId: json['_Id'],
+      userId: json['userId'],
+      name: json['rsstitle'],
+      url: json['rsslink']);
 }
