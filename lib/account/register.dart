@@ -142,8 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 connected = false;
               }).whenComplete(() {
                 if (connected) {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (BuildContext context) => LoginPage()));
+                  Navigator.of(context).pop();
                 }
               });
             }
