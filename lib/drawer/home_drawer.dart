@@ -72,7 +72,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
       ];
     }
 
-    if (user != null && user.isAdmin)
+    if (user != null && user.isAdmin != null && user.isAdmin)
       drawerList.add(DrawerList(
         index: DrawerIndex.SubmissionManager,
         labelName:
