@@ -357,8 +357,20 @@ class _ReadNewsState extends State<ReadNews> {
         getKeyWordsMap(context, textStyle);
     HighlightMap highlightMap = HighlightMap(key_words_map);
     final LinkedHashMap<String, HighlightedWord> hash_map = highlightMap.getMap;
-    return buildSpan(
-        context, full_text, full_dict.keys, hash_map, defaultStyle, 1);
+    final max_length=100;
+    List<TextSpan> text_children=[];
+    for(int i=0;i<full_text.length;i+=max_length){
+      final end_idx=i+max_length<full_text.length
+          ?i+max_length:full_text.length;
+      text_children.add(buildSpan(
+          context, full_text.substring(i,end_idx), full_dict.keys,
+          hash_map, defaultStyle, 1));
+    }
+    return TextSpan(
+      children: text_children,
+    );
+    // return buildSpan(
+        // context, full_text.substring(0,max_length), full_dict.keys, hash_map, defaultStyle, 1);
   }
 
   //mainImage
