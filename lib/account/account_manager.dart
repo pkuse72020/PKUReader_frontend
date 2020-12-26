@@ -395,7 +395,10 @@ class _SubmitPageState extends State<SubmitPage> {
                             if (value.isEmpty) return 'RSS URL 不能为空';
                             return null;
                           },
-                          onSaved: (newValue) => url = newValue,
+                          onSaved: (newValue){
+                            url= newValue;
+                            print('url');
+                          },
                           onChanged: (str) {
                             setState(() {});
                           },

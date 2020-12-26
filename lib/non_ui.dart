@@ -32,6 +32,7 @@ const submitUrl = rootUrl + '/rssdb/addPendingMsg';
 const getPendingUrl = rootUrl + '/rssdb/getPendingMsg';
 const approvePendingUrl = rootUrl + '/rssdb/approvePendingMsg';
 const rejectPendingUrl = rootUrl + '/rssdb/rejectPendingMsg';
+const getSearchedArticlesUrl = rootUrl + '/content/search';
 
 /// An account data structure.
 ///
@@ -62,6 +63,9 @@ class Account extends ChangeNotifier with HiveObject {
   @HiveField(6)
   final bool isAdmin;
 
+  @HiveField(7)
+  String searchWord;
+
   get authHeader =>
       'basic ' + convert.base64Encode((token + ':').runes.toList());
 
@@ -72,7 +76,8 @@ class Account extends ChangeNotifier with HiveObject {
       List<Article> favArticles,
       List<Source> subscrRssSrcs,
       List<Article> newsCache,
-      this.isAdmin})
+      this.isAdmin,
+      this.searchWord})
       : favArticles = favArticles ?? List<Article>(),
         subscrRssSrcs = subscrRssSrcs ?? List<Source>(),
         newsCache = newsCache ?? List<Article>();
@@ -228,10 +233,6 @@ class Account extends ChangeNotifier with HiveObject {
   bool hasSource(Source source) =>
       subscrRssSrcs.any((element) => element.id == source.id);
 
-  List<Article> search(String pattern) {
-    // TODO Implement this.
-  }
-
   Future<Iterable<Submission>> getPending() async {
     if (!isAdmin) throw Exception('Permission denied');
 
@@ -240,7 +241,7 @@ class Account extends ChangeNotifier with HiveObject {
     if (response.statusCode == HttpStatus.ok) {
       final Map<String, dynamic> json = convert.jsonDecode(response.body);
       final String state = json['state'];
-      
+
       if (state == 'success')
         return (json['rst'] as List<dynamic>)
             .map((e) => Submission.fromJson(e));
@@ -315,6 +316,29 @@ class Account extends ChangeNotifier with HiveObject {
     }
   }
 
+  /// Get articles from the server by searching a word.
+  Future<void> getSearchedArticles() async {
+    final response = await http.post(getSearchedArticlesUrl, headers: {
+      HttpHeaders.authorizationHeader: authHeader
+    }, body: {
+      'searchword': searchWord,
+    }).timeout(timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      final Map<String, dynamic> json = convert.jsonDecode(response.body);
+      final state = json['state'];
+      if (state != 'success') throw Exception(json['description']);
+      // print(json);
+      newsCache.addAll((json['result'] as Map<String, dynamic>)
+          .values
+          .map((e) => Article.fromJson(e))
+          .where((e) => !newsCache.any((element) => e.id == element.id)));
+      save();
+    } else {
+      throw Exception('HTTP error ' + response.statusCode.toString());
+    }
+  }
+
   static void logIn(String userName, String password) async {
     // TODO Implement this.
     var body = {"username": userName, "password": password};
@@ -330,7 +354,9 @@ class Account extends ChangeNotifier with HiveObject {
             token: jsonResponse["token"],
             userName: userName,
             userId: jsonResponse["UserId"],
-            isAdmin: true); // TODO Use the response to indicate the privilege.
+            isAdmin: true,
+            searchWord: "北大"); // TODO Use the response to indicate the
+        // privilege.
         user = account;
         await box.put('user', user);
         await user.getNews();

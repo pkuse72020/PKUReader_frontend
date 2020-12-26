@@ -14,17 +14,19 @@ class BrowseNews extends StatefulWidget {
 }
 
 class _BrowseNewsState extends State<BrowseNews> {
-  final controller = TextEditingController();
+  // final controller = TextEditingController();
+  final _searchController = TextEditingController();
+  // String searchWord;
   @override
   void dispose() {
     super.dispose();
-    controller.dispose();
+    _searchController.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    controller.addListener(() {
+    _searchController.addListener(() {
       setState(() {});
     });
   }
@@ -121,15 +123,22 @@ class _BrowseNewsState extends State<BrowseNews> {
                           padding: const EdgeInsets.only(
                               left: 16, right: 16, top: 4, bottom: 4),
                           child: TextField(
-                            onChanged: (String txt) {},
-                            style: const TextStyle(
-                              fontSize: 18,
-                            ),
-                            cursorColor: HexColor('#54D3C2'),
+                            controller: _searchController,
                             decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '北大 ...',
-                            ),
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                suffixIcon: _searchController.text.isEmpty
+                                    ? null
+                                    : IconButton(
+                                        icon: Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _searchController.clear();
+                                          });
+                                        })),
+                            onChanged: (str) {
+                              setState(() {});
+                            },
                           ),
                         ),
                       ),
@@ -154,14 +163,29 @@ class _BrowseNewsState extends State<BrowseNews> {
                         borderRadius: const BorderRadius.all(
                           Radius.circular(32.0),
                         ),
-                        onTap: () {
-                          FocusScope.of(context).requestFocus(FocusNode());
-                        },
+                        // onTap: () {
+                        //   FocusScope.of(context).requestFocus(FocusNode());
+                        // },
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Icon(FontAwesomeIcons.search,
                               size: 20, color: const Color(0xFFFFFFFF)),
                         ),
+                        onTap: () async {
+                          try {
+                            user.searchWord = _searchController.text;
+                            await user.getSearchedArticles();
+                          } catch (e) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('异常'),
+                                content: Text(e.toString()),
+                              ),
+                            );
+                          }
+                          setState(() {});
+                        },
                       ),
                     ),
                   ),
