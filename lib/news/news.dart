@@ -32,52 +32,62 @@ class _BrowseNewsState extends State<BrowseNews> {
   }
 
   //List Item
-  Widget getListItem(coverImage, article) => InkResponse(
-      containedInkWell: true,
-      highlightShape: BoxShape.rectangle,
-      borderRadius: BorderRadius.circular(12.0),
-      onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => new ReadNews(article: article))),
-      child: Container(
-        margin: EdgeInsets.only(right: 0),
-        height: 250,
-        width: 350,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(12.0)),
-          image: DecorationImage(
-              image: new ExactAssetImage(coverImage), fit: BoxFit.cover),
-        ),
-        alignment: Alignment.bottomCenter,
-        child: Material(
-          color: Color(0),
-          child: Container(
-              margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-              width: MediaQuery.of(context).size.width * 0.92,
-              child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    article.title,
-                    style: TextStyle(
-                      fontSize: 19,
-                      color: Colors.black,
-                    ),
-                    maxLines: 6,
-                  )),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.8),
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                    offset: Offset(1, 1),
-                  ),
-                ],
-              )),
-        ),
-      ));
+  Widget getListItem(coverImage, article) => Stack(
+        children: [
+          Container(
+            margin: EdgeInsets.only(right: 0),
+            height: 250,
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.8),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: Offset(1, 1),
+                ),
+              ],
+              borderRadius: BorderRadius.all(Radius.circular(12.0)),
+              image: DecorationImage(
+                  image: new ExactAssetImage(coverImage), fit: BoxFit.cover),
+            ),
+            alignment: Alignment.bottomCenter,
+            child: Container(
+                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                width: double.infinity,
+                child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      article.title,
+                      style: TextStyle(
+                        fontSize: 19,
+                        color: Colors.black,
+                      ),
+                      maxLines: 6,
+                    )),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(12.0),
+                        bottomRight: Radius.circular(12.0)))),
+          ),
+          SizedBox(
+            height: 250,
+            // width: 350,
+            child: Material(
+                color: Color(0),
+                child: InkResponse(
+                  containedInkWell: true,
+                  highlightShape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(12.0),
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              new ReadNews(article: article))),
+                )),
+          )
+        ],
+      );
 
   Widget getOneArticle(int i) => Container(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
