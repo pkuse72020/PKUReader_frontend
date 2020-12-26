@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pkureader_frontend/app_theme.dart';
+import 'package:pkureader_frontend/test/test_page.dart';
 
 import '../non_ui.dart';
 import '../main.dart';
@@ -38,38 +39,41 @@ class _BrowseNewsState extends State<BrowseNews> {
           image: DecorationImage(
               image: new ExactAssetImage(coverImage), fit: BoxFit.cover),
         ),
+        alignment: Alignment.bottomCenter,
         child: Material(
           color: Color(0),
           child: InkResponse(
-            containedInkWell: true,
-            highlightShape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(12.0),
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => new ReadNews(article: article))),
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 20.0, right: 20, top: 20, bottom: 10),
-                  child: Stack(
-                    alignment: Alignment.bottomLeft,
-                    children: <Widget>[
-                      Text(
+              containedInkWell: true,
+              highlightShape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(12.0),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => new ReadNews(article: article))),
+              child: Container(
+                  margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                  width: MediaQuery.of(context).size.width * 0.92,
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
                         article.title,
                         style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
+                          fontSize: 19,
+                          color: Colors.black,
+                        ),
                         maxLines: 6,
-                      )
+                      )),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.8),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                        offset: Offset(1, 1),
+                      ),
                     ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+                  ))),
         ),
       );
 
@@ -357,20 +361,19 @@ class _ReadNewsState extends State<ReadNews> {
         getKeyWordsMap(context, textStyle);
     HighlightMap highlightMap = HighlightMap(key_words_map);
     final LinkedHashMap<String, HighlightedWord> hash_map = highlightMap.getMap;
-    final max_length=100;
-    List<TextSpan> text_children=[];
-    for(int i=0;i<full_text.length;i+=max_length){
-      final end_idx=i+max_length<full_text.length
-          ?i+max_length:full_text.length;
-      text_children.add(buildSpan(
-          context, full_text.substring(i,end_idx), full_dict.keys,
-          hash_map, defaultStyle, 1));
+    final max_length = 100;
+    List<TextSpan> text_children = [];
+    for (int i = 0; i < full_text.length; i += max_length) {
+      final end_idx =
+          i + max_length < full_text.length ? i + max_length : full_text.length;
+      text_children.add(buildSpan(context, full_text.substring(i, end_idx),
+          full_dict.keys, hash_map, defaultStyle, 1));
     }
     return TextSpan(
       children: text_children,
     );
     // return buildSpan(
-        // context, full_text.substring(0,max_length), full_dict.keys, hash_map, defaultStyle, 1);
+    // context, full_text.substring(0,max_length), full_dict.keys, hash_map, defaultStyle, 1);
   }
 
   //mainImage
