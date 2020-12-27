@@ -261,7 +261,12 @@ class HtmlParser extends StatelessWidget {
   AlertDialog getAlertDialog(context, word, explanation) {
     return AlertDialog(
       title: Text(word),
-      content: Text(explanation),
+      content: SizedBox(
+        width: 0,
+        child: ListView(
+          children: [Text(explanation)],
+        ),
+      ),
       actions: <Widget>[
         FlatButton(
           onPressed: () {

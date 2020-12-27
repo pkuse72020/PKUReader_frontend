@@ -19,6 +19,7 @@ Account user;
 Box<Account> box;
 const String userBox = 'user_box_1';
 const timeout = Duration(seconds: 15);
+const wikiPos = 2;
 
 const rootUrl = 'http://39.98.93.128:5000';
 const loginUrl = rootUrl + '/user/login';
@@ -37,6 +38,7 @@ const getPendingUrl = rootUrl + '/rssdb/getPendingMsg';
 const approvePendingUrl = rootUrl + '/rssdb/approvePendingMsg';
 const rejectPendingUrl = rootUrl + '/rssdb/rejectPendingMsg';
 const getSearchedArticlesUrl = rootUrl + '/content/search';
+const getWikiUrl = rootUrl + '/content/getWiki';
 
 /// An account data structure.
 ///
@@ -169,6 +171,9 @@ class Account extends ChangeNotifier with HiveObject {
       favArticles = (json['rst'] as List<dynamic>)
           .map((e) => Article.fromVarJson(e))
           .toList();
+      for (var i = 0; i < favArticles.length; i++)
+        for (final keyword in favArticles[i].keywords.keys)
+          favArticles[i].keywords[keyword] = await Article.getWiki(keyword);
       save();
     } else {
       throw Exception('HTTP error ' + response.statusCode.toString());
@@ -309,10 +314,14 @@ class Account extends ChangeNotifier with HiveObject {
       final Map<String, dynamic> json = convert.jsonDecode(response.body);
       final state = json['state'];
       if (state != 'success') throw Exception(json['description']);
-      newsCache.addAll((json['article_list'] as Map<String, dynamic>)
+      final articleList = (json['article_list'] as Map<String, dynamic>)
           .values
           .map((e) => Article.fromJson(e))
-          .where((e) => !newsCache.any((element) => e.id == element.id)));
+          .where((e) => !newsCache.any((element) => e.id == element.id)).toList();
+      for (var i = 0; i < articleList.length; i++)
+        for (final keyword in articleList[i].keywords.keys)
+          articleList[i].keywords[keyword] = await Article.getWiki(keyword);
+      newsCache.addAll(articleList);
       save();
     } else {
       throw Exception('HTTP error ' + response.statusCode.toString());
@@ -332,10 +341,14 @@ class Account extends ChangeNotifier with HiveObject {
       final state = json['state'];
       if (state != 'success') throw Exception(json['description']);
       newsCache.clear();
-      newsCache.addAll((json['result'] as Map<String, dynamic>)
+      final articleList = (json['result'] as Map<String, dynamic>)
           .values
           .map((e) => Article.fromJson(e))
-          .where((e) => !newsCache.any((element) => e.id == element.id)));
+          .where((e) => !newsCache.any((element) => e.id == element.id)).toList();
+      for (var i = 0; i < articleList.length; i++)
+        for (final keyword in articleList[i].keywords.keys)
+          articleList[i].keywords[keyword] = await Article.getWiki(keyword);
+      newsCache.addAll(articleList);
       save();
     } else {
       throw Exception('HTTP error ' + response.statusCode.toString());
@@ -343,8 +356,9 @@ class Account extends ChangeNotifier with HiveObject {
   }
 
   static Future<String> getPublicKey(String test) async {
-    String publicKeyString = await rootBundle.loadString('assets/public_key_file.pem');
-    var publicKey=RSAKeyParser().parse(publicKeyString);
+    String publicKeyString =
+        await rootBundle.loadString('assets/public_key_file.pem');
+    var publicKey = RSAKeyParser().parse(publicKeyString);
     final encrypter = Encrypter(RSA(publicKey: publicKey));
 
     final encrypted = encrypter.encrypt(test);
@@ -353,15 +367,15 @@ class Account extends ChangeNotifier with HiveObject {
   }
 
   static void logIn(String userName, String password) async {
-    String pwd=await getPublicKey(password);
-    String uName=await getPublicKey(userName);
+    String pwd = await getPublicKey(password);
+    String uName = await getPublicKey(userName);
     // TODO Implement this.
     var body = {"username": uName, "password": pwd};
     var response = await http.post(loginUrl, body: body);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
       String state = jsonResponse["state"];
-      if (state == 'failed') {
+      if (state != 'success') {
         //print(jsonResponse["description"]);
         throw new Exception(jsonResponse["description"]);
       } else {
@@ -374,7 +388,7 @@ class Account extends ChangeNotifier with HiveObject {
         // privilege.
         user = account;
         await box.put('user', user);
-        await user.getNews();
+        // await user.getNews();
         await user.getFavArticles();
         await user.getSubscrSrcs();
       }
@@ -382,8 +396,8 @@ class Account extends ChangeNotifier with HiveObject {
   }
 
   static void register(String userName, String password) async {
-    String pwd=await getPublicKey(password);
-    String uName=await getPublicKey(userName);
+    String pwd = await getPublicKey(password);
+    String uName = await getPublicKey(userName);
     // TODO Implement this.
     var body = {"username": uName, "password": pwd};
     var response = await http.post(registerUrl, body: body);
@@ -391,7 +405,7 @@ class Account extends ChangeNotifier with HiveObject {
       var jsonResponse = convert.jsonDecode(response.body);
       //print(jsonResponse);
       String state = jsonResponse["state"];
-      if (state == 'failed') {
+      if (state != 'success') {
         throw new Exception(jsonResponse["description"]);
       } else {
         print(jsonResponse["UserId"]);
@@ -453,7 +467,7 @@ class Article {
       id: json['id'],
       keywords: Map.fromEntries((json['keyword_list'] as Map<String, dynamic>)
           .values
-          .map((e) => MapEntry(e, 'Not implemented'))),
+          .map((e) => MapEntry(e, null))),
       imgLinks:
           (json['imgLinks'] as List<dynamic>).map((e) => e as String).toList());
 
@@ -463,9 +477,26 @@ class Article {
       id: json['articleId'],
       keywords: Map.fromEntries((json['keywords'] as Map<String, dynamic>)
           .values
-          .map((e) => MapEntry(e, 'Not implemented'))),
+          .map((e) => MapEntry(e, null))),
       imgLinks:
           (json['imgLinks'] as List<dynamic>).map((e) => e as String).toList());
+
+  static Future<String> getWiki(String keyword) async {
+    final response = await http.post(getWikiUrl, body: {
+      'wikiword': keyword,
+    }).timeout(timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      final Map<String, dynamic> json = convert.jsonDecode(response.body);
+      final state = json['state'];
+      if (state != 'success') throw Exception(json['description']);
+      if ((json['result'] as List<dynamic>).isEmpty) return '没有找到该条目。';
+      return ((json['result'] as List<dynamic>)[0] as List<dynamic>)[wikiPos]
+          as String;
+    } else {
+      throw Exception('HTTP error ' + response.statusCode.toString());
+    }
+  }
 }
 
 @HiveType(typeId: 2)
