@@ -342,20 +342,21 @@ class Account extends ChangeNotifier with HiveObject {
     }
   }
 
-  static Future<String> getPublicSecrect(String password) async {
+  static Future<String> getPublicKey(String test) async {
     String publicKeyString = await rootBundle.loadString('assets/public_key_file.pem');
     var publicKey=RSAKeyParser().parse(publicKeyString);
     final encrypter = Encrypter(RSA(publicKey: publicKey));
 
-    final encrypted = encrypter.encrypt(password);
+    final encrypted = encrypter.encrypt(test);
     //print(encrypted.base64);
     return encrypted.base64;
   }
 
   static void logIn(String userName, String password) async {
-    String pwd=await getPublicSecrect(password);
+    String pwd=await getPublicKey(password);
+    String uName=await getPublicKey(userName);
     // TODO Implement this.
-    var body = {"username": userName, "password": pwd};
+    var body = {"username": uName, "password": pwd};
     var response = await http.post(loginUrl, body: body);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
@@ -381,9 +382,10 @@ class Account extends ChangeNotifier with HiveObject {
   }
 
   static void register(String userName, String password) async {
+    String pwd=await getPublicKey(password);
+    String uName=await getPublicKey(userName);
     // TODO Implement this.
-    String pwd=await getPublicSecrect(password);
-    var body = {"username": userName, "password": pwd};
+    var body = {"username": uName, "password": pwd};
     var response = await http.post(registerUrl, body: body);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
