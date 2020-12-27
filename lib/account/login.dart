@@ -17,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   String account = '', password = '';
   bool isObscure = true;
   bool isEmpty = false;
+  bool apiCall = false;
   final accountController = TextEditingController();
   final pwdController = TextEditingController();
 
@@ -53,6 +54,38 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
+  }
+  void progressIndicator(bool status) {
+    if (apiCall == true && status == false)
+      Navigator.of(context, rootNavigator: true).pop();
+    setState(() {
+      apiCall = status;
+    });
+    showIndicator();
+  }
+
+  void showIndicator() {
+    if (apiCall) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        child: new Dialog(
+          child: Container(
+              height: 100.0,
+              child: new Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: new Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    new CircularProgressIndicator(),
+                    new Text("Loading"),
+                  ],
+                ),
+              )),
+        ),
+      );
+    }
   }
 
   @override
@@ -148,6 +181,7 @@ class _LoginPageState extends State<LoginPage> {
           onPressed: () {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
+              progressIndicator(true);
               //TODO 执行登录方法
               //同步调用
 //              try{
@@ -158,15 +192,19 @@ class _LoginPageState extends State<LoginPage> {
 //              }
               //异步调用
               bool connected = true;
+              dynamic message='';
               Future.delayed(Duration(seconds: 1),
                   () => Account.logIn(account, password)).catchError((e) {
-                showAlertDialog(e);
+                message=e;
                 connected = false;
               }).whenComplete(() {
+                progressIndicator(false);
                 if (connected) {
                   //TODO 回到主界面
                   widget.callback();
                   Navigator.of(context).pop();
+                }else{
+                  showAlertDialog(message);
                 }
               });
             }

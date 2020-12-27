@@ -13,6 +13,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String account = '', password = '';
   bool isObscure = true;
   bool isEmpty = false;
+  bool apiCall=false;
   final accountController = TextEditingController();
   final pwdController = TextEditingController();
   final repwdController = TextEditingController();
@@ -51,6 +52,39 @@ class _RegisterPageState extends State<RegisterPage> {
         ],
       ),
     );
+  }
+
+  void progressIndicator(bool status) {
+    if (apiCall == true && status == false)
+      Navigator.of(context, rootNavigator: true).pop();
+    setState(() {
+      apiCall = status;
+    });
+    showIndicator();
+  }
+
+  void showIndicator() {
+    if (apiCall) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        child: new Dialog(
+          child: Container(
+              height: 100.0,
+              child: new Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: new Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    new CircularProgressIndicator(),
+                    new Text("Loading"),
+                  ],
+                ),
+              )),
+        ),
+      );
+    }
   }
 
   @override
@@ -141,15 +175,20 @@ class _RegisterPageState extends State<RegisterPage> {
           onPressed: () {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
+              progressIndicator(true);
               //TODO 执行登录方法
               bool connected = true;
+              dynamic message='';
               Future.delayed(Duration(seconds: 1),
                   () => Account.register(account, password)).catchError((e) {
-                showAlertDialog(e);
+                    message=e;
                 connected = false;
               }).whenComplete(() {
+                progressIndicator(false);
                 if (connected) {
                   Navigator.of(context).pop();
+                }else {
+                  showAlertDialog(message);
                 }
               });
             }

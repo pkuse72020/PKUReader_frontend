@@ -5,6 +5,10 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
+import 'package:encrypt/encrypt.dart';
+import 'package:encrypt/encrypt_io.dart';
+import 'package:pointycastle/asymmetric/api.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 part 'non_ui.g.dart';
 
@@ -339,9 +343,20 @@ class Account extends ChangeNotifier with HiveObject {
     }
   }
 
+  static Future<String> getPublicSecrect(String password) async {
+    String publicKeyString = await rootBundle.loadString('assets/public_key_file.pem');
+    var publicKey=RSAKeyParser().parse(publicKeyString);
+    final encrypter = Encrypter(RSA(publicKey: publicKey));
+
+    final encrypted = encrypter.encrypt(password);
+    //print(encrypted.base64);
+    return encrypted.base64;
+  }
+
   static void logIn(String userName, String password) async {
+    String pwd=await getPublicSecrect(password);
     // TODO Implement this.
-    var body = {"username": userName, "password": password};
+    var body = {"username": userName, "password": pwd};
     var response = await http.post(loginUrl, body: body);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
@@ -368,7 +383,8 @@ class Account extends ChangeNotifier with HiveObject {
 
   static void register(String userName, String password) async {
     // TODO Implement this.
-    var body = {"username": userName, "password": password};
+    String pwd=await getPublicSecrect(password);
+    var body = {"username": userName, "password": pwd};
     var response = await http.post(registerUrl, body: body);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
