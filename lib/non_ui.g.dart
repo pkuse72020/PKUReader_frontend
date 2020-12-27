@@ -73,13 +73,14 @@ class ArticleAdapter extends TypeAdapter<Article> {
       content: fields[1] as String,
       keywords: (fields[2] as Map)?.cast<String, String>(),
       id: fields[3] as String,
+      imgLinks: (fields[4] as List)?.cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Article obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -87,7 +88,9 @@ class ArticleAdapter extends TypeAdapter<Article> {
       ..writeByte(2)
       ..write(obj.keywords)
       ..writeByte(3)
-      ..write(obj.id);
+      ..write(obj.id)
+      ..writeByte(4)
+      ..write(obj.imgLinks);
   }
 
   @override

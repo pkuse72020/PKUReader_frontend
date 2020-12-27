@@ -23,6 +23,7 @@ typedef CustomRender = Widget Function(
   Map<String, String> attributes,
   dom.Element element,
 );
+
 class HighlightedWord {
   final TextStyle textStyle;
   final VoidCallback onTap;
@@ -34,6 +35,7 @@ class HighlightedWord {
     ),
   });
 }
+
 class HighlightMap {
   LinkedHashMap<String, HighlightedWord> _hashMap = LinkedHashMap(
     equals: (a, b) => a.toLowerCase() == b.toLowerCase(),
@@ -49,10 +51,9 @@ class HighlightMap {
   get getMap => _hashMap;
 }
 
-
 class HtmlParser extends StatelessWidget {
   final String htmlData;
-  final Map<String,String>key_words_dict;
+  final Map<String, String> key_words_dict;
   final OnTap onLinkTap;
   final OnTap onImageTap;
   final ImageErrorListener onImageError;
@@ -257,7 +258,7 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  AlertDialog getAlertDialog(context,word,explanation){
+  AlertDialog getAlertDialog(context, word, explanation) {
     return AlertDialog(
       title: Text(word),
       content: Text(explanation),
@@ -271,105 +272,110 @@ class HtmlParser extends StatelessWidget {
       ],
     );
   }
-  HighlightedWord getHighlightedWord(context,textStyle,word,explanation){
-    return  HighlightedWord(
+
+  HighlightedWord getHighlightedWord(context, textStyle, word, explanation) {
+    return HighlightedWord(
       onTap: () {
         showDialog(
             context: context,
             builder: (context) {
-              return getAlertDialog(context,word,explanation);
+              return getAlertDialog(context, word, explanation);
             });
       },
       textStyle: textStyle,
     );
   }
-  Map<String,HighlightedWord> getKeyWordsMap(context,textStyle,key_words_dict){
-    Map<String,HighlightedWord> myMap=new Map<String,HighlightedWord>();
-    for(var key_word in key_words_dict.keys){
-      myMap[key_word]=getHighlightedWord(context, textStyle, key_word,
-          key_words_dict[key_word]);
+
+  Map<String, HighlightedWord> getKeyWordsMap(
+      context, textStyle, key_words_dict) {
+    Map<String, HighlightedWord> myMap = new Map<String, HighlightedWord>();
+    for (var key_word in key_words_dict.keys) {
+      myMap[key_word] = getHighlightedWord(
+          context, textStyle, key_word, key_words_dict[key_word]);
     }
     return myMap;
   }
+
   ///fucntion for building TextSpan for text
-  TextSpan buildSpan(RenderContext Rcontext,List<String> words,
+  TextSpan buildSpan(
+      BuildContext context,
+      String full_text,
+      key_words_list,
+      LinkedHashMap<String, HighlightedWord> hash_map,
+      TextStyle defaultStyle,
       var to_default) {
-    BuildContext context=Rcontext.buildContext;
+    if (full_text.length == 0) return TextSpan(text: "");
+    for (var key_word in key_words_list) {
+      if (full_text.length < key_word.length) continue;
+      String comp = full_text.substring(0, key_word.length);
+      if (comp == key_word) {
+        return TextSpan(
+          text: comp,
+          style: hash_map[comp].textStyle,
+          children: [
+            // TextSpan(
+            //   text: " ",
+            //   style: defaultStyle,
+            // ),
+            buildSpan(
+                context,
+                full_text.substring(comp.length, full_text.length),
+                key_words_list,
+                hash_map,
+                defaultStyle,
+                1),
+          ],
+          recognizer: TapGestureRecognizer()
+            ..onTap = () => hash_map[comp].onTap(),
+        );
+      }
+    }
+    return TextSpan(
+      text: full_text.characters.first,
+      // style: the_words.containsKey(currentWord)
+      //     ? the_words[currentWord].textStyle
+      //     : defaultStyle,
+      style: to_default == 1 ? defaultStyle : null,
+      children: [
+        buildSpan(
+            context,
+            full_text.substring(
+                full_text.characters.first.length, full_text.length),
+            key_words_list,
+            hash_map,
+            defaultStyle,
+            0),
+      ],
+      recognizer: null,
+    );
+  }
+
+  TextSpan getSpan(BuildContext context, String full_text, full_dict) {
     TextStyle textStyle = TextStyle(
-      color: Colors.red,
-      fontSize: 20.0,
+      color: Colors.blueAccent,
+      fontSize: 16.5,
     );
     TextStyle defaultStyle = TextStyle(
-      color:Colors.black,
-      fontSize:12.0,
+      color: Colors.black54,
+      fontSize: 16.5,
     );
-    Map<String,HighlightedWord> key_words_map=getKeyWordsMap(context,
-        textStyle,key_words_dict);
+    Map<String, HighlightedWord> key_words_map =
+        getKeyWordsMap(context, textStyle, key_words_dict);
     HighlightMap highlightMap = HighlightMap(key_words_map);
-    final LinkedHashMap<String, HighlightedWord> the_words=highlightMap.getMap;
-
-    if (words.length > 0) {
-      String currentWord = words[0];
-      words.remove(currentWord);
-
-      // String charLastRemoved = currentWord.length>0?
-      // currentWord[currentWord.length - 1]:null;
-
-      // String wordLastRemoved = currentWord.length>0?
-      // currentWord.substring(0, currentWord.length - 1):null;
-      String wordLastRemoved=currentWord;
-      String tmp_subString = currentWord.length>1?currentWord.substring(0, 
-          currentWord.length - 1):currentWord;
-      // print(to_default);
-      // print(wordLastRemoved);
-      if (the_words.containsKey(wordLastRemoved)) {
-        return TextSpan(
-          text: wordLastRemoved,
-          style: the_words[wordLastRemoved].textStyle,
-          children: [
-            TextSpan(
-              text: " ",
-              style: defaultStyle,
-            ),
-            buildSpan(Rcontext,words,1),
-          ],
-          recognizer: TapGestureRecognizer()
-            ..onTap = () => the_words[wordLastRemoved].onTap(),
-        );
-      } else if(the_words.containsKey(tmp_subString)){
-        return TextSpan(
-          text: wordLastRemoved,
-          style: the_words[tmp_subString].textStyle,
-          children: [
-            TextSpan(
-              text: " ",
-              style: defaultStyle,
-            ),
-            buildSpan(Rcontext,words,1),
-          ],
-          recognizer: TapGestureRecognizer()
-            ..onTap = () => the_words[tmp_subString].onTap(),
-        );
-      }
-      else {
-        return TextSpan(
-          text: currentWord + " ",
-          // style: the_words.containsKey(currentWord)
-          //     ? the_words[currentWord].textStyle
-          //     : defaultStyle,
-          style:to_default==1?defaultStyle:null,
-          children: [
-            buildSpan(Rcontext,words,0),
-          ],
-          recognizer: the_words.containsKey(currentWord)
-              ? (TapGestureRecognizer()
-            ..onTap = () => the_words[currentWord].onTap())
-              : null,
-        );
-      }
-    } else {
-      return TextSpan(text: "");
+    final LinkedHashMap<String, HighlightedWord> hash_map = highlightMap.getMap;
+    final max_length = 100;
+    List<TextSpan> text_children = [];
+    for (int i = 0; i < full_text.length; i += max_length) {
+      final end_idx =
+          i + max_length < full_text.length ? i + max_length : full_text.length;
+      text_children.add(buildSpan(context, full_text.substring(i, end_idx),
+          full_dict.keys, hash_map, defaultStyle, 1));
     }
+    return TextSpan(
+      children: text_children,
+    );
+    // return buildSpan(
+    // context, full_text.substring(0,max_length), full_dict.keys, hash_map, defaultStyle, 1);
   }
 
   /// [parseTree] converts a tree of [StyledElement]s to an [InlineSpan] tree.
@@ -461,8 +467,7 @@ class HtmlParser extends StatelessWidget {
           ),
         ),
       );
-    }
-    else if (tree is ReplacedElement) {
+    } else if (tree is ReplacedElement) {
       if (tree is TextContentElement) {
         // return TextSpan(text: tree.text);
         // return TextSpan(
@@ -477,11 +482,10 @@ class HtmlParser extends StatelessWidget {
         //   ]
         // );
 
-        List<String> _textWords=List();
-        _textWords=tree.text.split(" ");
-        return buildSpan(context,_textWords,0);
-      }
-      else {
+        // List<String> _textWords = List();
+        // _textWords = tree.text.split(" ");
+        return getSpan(context.buildContext, tree.text, key_words_dict);
+      } else {
         return WidgetSpan(
           alignment: tree.alignment,
           baseline: TextBaseline.alphabetic,
