@@ -328,7 +328,7 @@ class Account extends ChangeNotifier with HiveObject {
       final Map<String, dynamic> json = convert.jsonDecode(response.body);
       final state = json['state'];
       if (state != 'success') throw Exception(json['description']);
-      // print(json);
+      newsCache.clear();
       newsCache.addAll((json['result'] as Map<String, dynamic>)
           .values
           .map((e) => Article.fromJson(e))

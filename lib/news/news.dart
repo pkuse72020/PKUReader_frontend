@@ -185,6 +185,14 @@ class _BrowseNewsState extends State<BrowseNews> {
                           try {
                             user.searchWord = _searchController.text;
                             await user.getSearchedArticles();
+                            if(user.newsCache.length==0){
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  content: Text("未搜索到结果！"),
+                                ),
+                              );
+                            }
                           } catch (e) {
                             showDialog(
                               context: context,
