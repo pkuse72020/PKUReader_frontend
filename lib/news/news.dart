@@ -1,6 +1,9 @@
 import 'dart:collection';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pkureader_frontend/app_theme.dart';
 import 'package:pkureader_frontend/test/test_page.dart';
@@ -32,7 +35,7 @@ class _BrowseNewsState extends State<BrowseNews> {
   }
 
   //List Item
-  Widget getListItem(coverImage, article) => Stack(
+  Widget getListItem(Article article) => Stack(
         children: [
           Container(
             margin: EdgeInsets.only(right: 0),
@@ -48,7 +51,8 @@ class _BrowseNewsState extends State<BrowseNews> {
               ],
               borderRadius: BorderRadius.all(Radius.circular(12.0)),
               image: DecorationImage(
-                  image: new ExactAssetImage(coverImage), fit: BoxFit.cover),
+                  image: CachedNetworkImageProvider(article.imgLinks[0]),
+                  fit: BoxFit.cover),
             ),
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -91,10 +95,7 @@ class _BrowseNewsState extends State<BrowseNews> {
 
   Widget getOneArticle(int i) => Container(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
-        child: getListItem(
-            // TODO Use proper pictures.
-            'assets/images/article/pkulibrary.jpeg', //picture
-            user.newsCache[i]),
+        child: getListItem(user.newsCache[i]),
       );
 
   @override
@@ -414,9 +415,9 @@ class _ReadNewsState extends State<ReadNews> {
   Widget mainImageWidget(height) => Container(
         height: height / 3,
         decoration: BoxDecoration(
-          image: DecorationImage(image: new ExactAssetImage(
-              // TODO Use proper pictures.
-              'assets/images/article/pkulibrary.jpeg'), fit: BoxFit.cover),
+          image: DecorationImage(
+              image: CachedNetworkImageProvider(widget.article.imgLinks[0]),
+              fit: BoxFit.cover),
         ),
         child: Padding(
           padding: const EdgeInsets.only(top: 48, left: 16),
@@ -498,8 +499,18 @@ class _ReadNewsState extends State<ReadNews> {
 
                 //Paragraph
                 need_hl == 1
-                    ? Text.rich(getSpan(context, widget.article.content,
-                        widget.article.keywords))
+                    ? Html(
+                        data: widget.article.content,
+                        key_words_dict: widget.article.keywords,
+                        style: {
+                          'html': Style(
+                            fontSize: const FontSize(16.5),
+                            color: Colors.black54,
+                          )
+                        },
+                      )
+                    // ? Text.rich(getSpan(context, widget.article.content,
+                    //     widget.article.keywords))
                     : Text(
                         widget.article.content ?? "",
                         style: TextStyle(

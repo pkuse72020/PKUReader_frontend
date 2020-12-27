@@ -63,7 +63,6 @@ class Account extends ChangeNotifier with HiveObject {
   @HiveField(6)
   final bool isAdmin;
 
-  @HiveField(7)
   String searchWord;
 
   get authHeader =>
@@ -420,27 +419,34 @@ class Article {
   @HiveField(3)
   final String id;
 
+  @HiveField(4)
+  final List<String> imgLinks;
+
   Article(
       {@required this.title,
       @required this.content,
       @required this.keywords,
-      @required this.id});
+      @required this.id,
+      @required this.imgLinks});
 
   factory Article.fromJson(Map<String, dynamic> json) => Article(
       title: json['title'],
-      content: json['article'],
+      content: json['raw_html'],
       id: json['id'],
       keywords: Map.fromEntries((json['keyword_list'] as Map<String, dynamic>)
           .values
-          .map((e) => MapEntry(e, 'Not implemented'))));
+          .map((e) => MapEntry(e, 'Not implemented'))),
+      imgLinks:
+          (json['imgLinks'] as List<dynamic>).map((e) => e as String).toList());
 
   factory Article.fromVarJson(Map<String, dynamic> json) => Article(
       title: json['title'],
-      content: json['content'],
+      content: json['raw_html'],
       id: json['articleId'],
       keywords: Map.fromEntries((json['keywords'] as Map<String, dynamic>)
           .values
-          .map((e) => MapEntry(e, 'Not implemented'))));
+          .map((e) => MapEntry(e, 'Not implemented'))),
+      imgLinks: json['imgLinks']);
 }
 
 @HiveType(typeId: 2)
