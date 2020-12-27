@@ -446,7 +446,8 @@ class Article {
       keywords: Map.fromEntries((json['keywords'] as Map<String, dynamic>)
           .values
           .map((e) => MapEntry(e, 'Not implemented'))),
-      imgLinks: json['imgLinks']);
+      imgLinks:
+          (json['imgLinks'] as List<dynamic>).map((e) => e as String).toList());
 }
 
 @HiveType(typeId: 2)
