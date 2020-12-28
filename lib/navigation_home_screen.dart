@@ -89,10 +89,10 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
         setState(() {
           screenView = SubmissionManager();
         });
-      } else if (drawerIndex == DrawerIndex.GetAdmin) {
+      /*} else if (drawerIndex == DrawerIndex.GetAdmin) {
         setState(() {
           screenView = GetAdminPage();
-        });
+        });*/
       }
     }
   }

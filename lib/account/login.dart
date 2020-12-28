@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                   //   height: kToolbarHeight,
                   // ),
                   Hero(tag: 'logo', child: buildTitle()),
-                  Hero(tag: 'isAdmin',child:selectAdmin()),
+                  //Hero(tag: 'isAdmin',child:selectAdmin()),
                   Hero(
                       tag: 'user_name', child: Material(child: buildAccount())),
                   // SizedBox(height: 30.0),
@@ -184,7 +184,6 @@ class _LoginPageState extends State<LoginPage> {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
               progressIndicator(true);
-              //TODO 执行登录方法
               //同步调用
 //              try{
 //                Account.logIn(account,password);
@@ -202,7 +201,6 @@ class _LoginPageState extends State<LoginPage> {
               }).whenComplete(() {
                 progressIndicator(false);
                 if (connected) {
-                  //TODO 回到主界面
                   widget.callback();
                   Navigator.of(context).pop();
                 }else{

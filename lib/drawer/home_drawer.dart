@@ -79,13 +79,13 @@ class _HomeDrawerState extends State<HomeDrawer> {
             '待处理申请 ', // A space is added due to the strange line wrapping
         icon: Icon(Icons.pending_actions),
       ));
-    if (user != null && user.isAdmin != null && !user.isAdmin)
+    /*if (user != null && user.isAdmin != null && !user.isAdmin)
       drawerList.add(DrawerList(
         index: DrawerIndex.GetAdmin,
         labelName:
         '获得管理员权限 ', // A space is added due to the strange line wrapping
         icon: Icon(Icons.vpn_key),
-      ));
+      ));*/
   }
 
   @override

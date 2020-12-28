@@ -176,7 +176,6 @@ class _RegisterPageState extends State<RegisterPage> {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
               progressIndicator(true);
-              //TODO 执行登录方法
               bool connected = true;
               dynamic message='';
               Future.delayed(Duration(seconds: 1),

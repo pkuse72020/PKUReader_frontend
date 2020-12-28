@@ -383,7 +383,8 @@ class Account extends ChangeNotifier with HiveObject {
             token: jsonResponse["token"],
             userName: userName,
             userId: jsonResponse["UserId"],
-            isAdmin: false,
+            //isAdmin: false,
+            isAdmin: true,
             searchWord: "北大"); // TODO Use the response to indicate the
         // privilege.
         user = account;
@@ -398,7 +399,6 @@ class Account extends ChangeNotifier with HiveObject {
   static void register(String userName, String password) async {
     String pwd = await getPublicKey(password);
     String uName = await getPublicKey(userName);
-    // TODO Implement this.
     var body = {"username": uName, "password": pwd};
     var response = await http.post(registerUrl, body: body);
     if (response.statusCode == 200) {
