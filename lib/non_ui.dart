@@ -383,7 +383,7 @@ class Account extends ChangeNotifier with HiveObject {
             token: jsonResponse["token"],
             userName: userName,
             userId: jsonResponse["UserId"],
-            isAdmin: true,
+            isAdmin: false,
             searchWord: "北大"); // TODO Use the response to indicate the
         // privilege.
         user = account;

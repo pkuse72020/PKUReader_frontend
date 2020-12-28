@@ -528,3 +528,77 @@ class _SubmissionManagerState extends State<SubmissionManager> {
             }));
   }
 }
+
+
+class GetAdminPage extends StatefulWidget {
+  @override
+  _GetAdminPageState createState() => _GetAdminPageState();
+}
+class _GetAdminPageState extends State<GetAdminPage> {
+  final _pwdController = TextEditingController();
+  String pwd;
+  final _key = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScaffold(
+        isPushed: false,
+        name: '获得管理员权限',
+        height: 240.0,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Center(
+              child: Form(
+                  key: _key,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _pwdController,
+                        decoration: InputDecoration(
+                            labelText: '管理员密码',
+                            suffixIcon: _pwdController.text.isEmpty
+                                ? null
+                                : IconButton(
+                                icon: Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _pwdController.clear();
+                                  });
+                                })),
+                        validator: (value) {
+                          if (value.isEmpty) return '管理员密码不能为空';
+                          return null;
+                        },
+                        onSaved: (newValue) => pwd = newValue,
+                        onChanged: (str) {
+                          setState(() {});
+                        },
+                      ),
+                      TextButton(
+                          onPressed: () async {
+                            if (_key.currentState.validate()) {
+                              _key.currentState.save();
+
+                              try {
+                                //TODO:implement this
+                                //await user.submit(sourceName, url);
+                              } catch (e) {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text('异常'),
+                                      content: Text(e.toString()),
+                                    ));
+                              }
+
+                              _key.currentState.reset();
+                              _pwdController.clear();
+                            }
+                          },
+                          child: Text('提交'))
+                    ],
+                    mainAxisSize: MainAxisSize.min,
+                  ))),
+        ));
+  }
+}

@@ -14,6 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
+  bool isAdmin=false;
   String account = '', password = '';
   bool isObscure = true;
   bool isEmpty = false;
@@ -105,6 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                   //   height: kToolbarHeight,
                   // ),
                   Hero(tag: 'logo', child: buildTitle()),
+                  Hero(tag: 'isAdmin',child:selectAdmin()),
                   Hero(
                       tag: 'user_name', child: Material(child: buildAccount())),
                   // SizedBox(height: 30.0),
@@ -263,7 +265,68 @@ class _LoginPageState extends State<LoginPage> {
               : null),
     );
   }
-
+  Container selectAdmin(){
+    return Container(
+      width: 300,
+      height: 50,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(25)),
+        color: Color(0x552B2B2B),
+      ),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+              child: Container(
+                decoration: (!isAdmin)
+                    ? BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(25),
+                  ),
+                  color: Colors.white,
+                ) : null,
+                child: Center(
+                  child: FlatButton(
+                    onPressed: () {
+                      setState(() {
+                        isAdmin=false;
+                        print(isAdmin);
+                      });
+                    },
+                    child: Text(
+                      "User",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+              )),
+          Expanded(
+              child: Container(
+                decoration: isAdmin
+                    ? BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(25),
+                  ),
+                  color: Colors.white,
+                ) : null,
+                child: Center(
+                  child: FlatButton(
+                    onPressed: () {
+                      setState(() {
+                        isAdmin=true;
+                        print(isAdmin);
+                      });
+                    },
+                    child: Text(
+                      "Admin",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
   Widget buildTitle() {
     return Container(
       height: (MediaQuery.of(context).size.height -
