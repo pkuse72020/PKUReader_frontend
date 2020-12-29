@@ -198,9 +198,9 @@ class _BrowseNewsState extends State<BrowseNews> {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                // title: Text('异常'),
+                                title: Text('异常'),
                                 // content: Text(e.toString()),
-                                content: Text("未搜索到结果！"),
+                                content: Text("如您未登录请先登录"),
                               ),
                             );
                           }
