@@ -1,17 +1,24 @@
 import 'dart:collection';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pkureader_frontend/account/login.dart';
 import 'package:pkureader_frontend/app_theme.dart';
 import 'package:pkureader_frontend/test/test_page.dart';
+import 'package:pkureader_frontend/util.dart';
 
 import '../non_ui.dart';
 import '../main.dart';
 
 class BrowseNews extends StatefulWidget {
+  final VoidCallback callback;
+
+  BrowseNews({@required this.callback});
+
   @override
   _BrowseNewsState createState() => _BrowseNewsState();
 }
@@ -86,8 +93,8 @@ class _BrowseNewsState extends State<BrowseNews> {
                   onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              new ReadNews(article: article))),
+                          builder: (context) => new ReadNews(
+                              article: article, callback: widget.callback))),
                 )),
           )
         ],
@@ -132,7 +139,7 @@ class _BrowseNewsState extends State<BrowseNews> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.only(
-                              left: 16, right: 16, top: 4, bottom: 4),
+                              left: 16, right: 8, top: 4, bottom: 4),
                           child: TextField(
                             controller: _searchController,
                             decoration: InputDecoration(
@@ -141,7 +148,10 @@ class _BrowseNewsState extends State<BrowseNews> {
                                 suffixIcon: _searchController.text.isEmpty
                                     ? null
                                     : IconButton(
-                                        icon: Icon(Icons.clear),
+                                        splashRadius: 0.001,
+                                        icon: const Icon(
+                                            CupertinoIcons.xmark_circle_fill,
+                                            color: Colors.grey),
                                         onPressed: () {
                                           setState(() {
                                             _searchController.clear();
@@ -186,7 +196,7 @@ class _BrowseNewsState extends State<BrowseNews> {
                           try {
                             user.searchWord = _searchController.text;
                             await user.getSearchedArticles();
-                            if(user.newsCache.length==0){
+                            if (user.newsCache.length == 0) {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
@@ -196,13 +206,9 @@ class _BrowseNewsState extends State<BrowseNews> {
                             }
                           } catch (e) {
                             showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text('异常'),
-                                // content: Text(e.toString()),
-                                content: Text("如您未登录请先登录"),
-                              ),
-                            );
+                                context: context,
+                                builder: (context) => PkuReaderAlert(
+                                    title: '搜索失败', e: e, context: context));
                           }
                           setState(() {});
                         },
@@ -243,12 +249,9 @@ class _BrowseNewsState extends State<BrowseNews> {
                           await user.getNews();
                         } catch (e) {
                           showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text('异常'),
-                              content: Text(e.toString()),
-                            ),
-                          );
+                              context: context,
+                              builder: (context) => PkuReaderAlert(
+                                  title: '新闻获取失败', e: e, context: context));
                         }
                         setState(() {});
                       },
@@ -455,12 +458,18 @@ class _ReadNewsState extends State<ReadNews> {
                         size: 28,
                       ),
                 onPressed: () async {
+                  if (user?.token == null) {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            LoginPage(callback: widget.callback)));
+                    return;
+                  }
                   if (user.existArticle(widget.article))
                     await user.removeArticle(widget.article);
                   else
                     await user.addArticle(widget.article);
                   setState(() {});
-                  widget.callback();
+                  if (widget.callback != null) widget.callback();
                 },
               )
             ],

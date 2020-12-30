@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pkureader_frontend/app_theme.dart';
 
 import '../local.dart';
 import '../news/news.dart';
 import '../non_ui.dart';
+import '../util.dart';
 
 enum SubscrType { rss, article }
 
@@ -62,7 +64,7 @@ class CustomScaffold extends StatelessWidget {
                       // [nextPage] is [null].
                       nextPage == null
                           ? IconButton(
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.arrow_back_ios,
                                 color: Color(0),
                               ),
@@ -182,12 +184,9 @@ class _SubscrManagerState extends State<SubscrManager> {
               await user.getFavArticles();
           } catch (e) {
             showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text('异常'),
-                content: Text(e.toString()),
-              ),
-            );
+                context: context,
+                builder: (context) =>
+                    PkuReaderAlert(title: '获取失败', e: e, context: context));
           }
           setState(() {});
         },
@@ -258,7 +257,9 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
               suffixIcon: controller.text.isEmpty
                   ? null
                   : IconButton(
-                      icon: const Icon(Icons.clear),
+                      splashRadius: 0.001,
+                      icon: const Icon(CupertinoIcons.xmark_circle_fill,
+                          color: Colors.grey),
                       onPressed: () => controller.clear(),
                     )),
         ),
@@ -285,10 +286,10 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
                                   } catch (e) {
                                     showDialog(
                                         context: context,
-                                        builder: (context) => AlertDialog(
-                                              title: Text('异常'),
-                                              content: Text(e.toString()),
-                                            ));
+                                        builder: (context) => PkuReaderAlert(
+                                            title: 'RSS 源获取失败',
+                                            e: e,
+                                            context: context));
                                   }
                                   setState(() {});
                                   widget.callback();
@@ -361,7 +362,10 @@ class _SubmitPageState extends State<SubmitPage> {
                             suffixIcon: _nameController.text.isEmpty
                                 ? null
                                 : IconButton(
-                                    icon: Icon(Icons.clear),
+                                    splashRadius: 0.001,
+                                    icon: const Icon(
+                                        CupertinoIcons.xmark_circle_fill,
+                                        color: Colors.grey),
                                     onPressed: () {
                                       setState(() {
                                         _nameController.clear();
@@ -385,7 +389,10 @@ class _SubmitPageState extends State<SubmitPage> {
                               suffixIcon: _urlController.text.isEmpty
                                   ? null
                                   : IconButton(
-                                      icon: Icon(Icons.clear),
+                                      splashRadius: 0.001,
+                                      icon: const Icon(
+                                          CupertinoIcons.xmark_circle_fill,
+                                          color: Colors.grey),
                                       onPressed: () {
                                         setState(() {
                                           _urlController.clear();
@@ -395,8 +402,8 @@ class _SubmitPageState extends State<SubmitPage> {
                             if (value.isEmpty) return 'RSS URL 不能为空';
                             return null;
                           },
-                          onSaved: (newValue){
-                            url= newValue;
+                          onSaved: (newValue) {
+                            url = newValue;
                             print('url');
                           },
                           onChanged: (str) {
@@ -414,10 +421,8 @@ class _SubmitPageState extends State<SubmitPage> {
                               } catch (e) {
                                 showDialog(
                                     context: context,
-                                    builder: (context) => AlertDialog(
-                                          title: Text('异常'),
-                                          content: Text(e.toString()),
-                                        ));
+                                    builder: (context) => PkuReaderAlert(
+                                        title: '发布失败', e: e, context: context));
                               }
 
                               _key.currentState.reset();
@@ -457,8 +462,7 @@ class _SubmissionManagerState extends State<SubmissionManager> {
                       children: snapshot.data
                           .map((e) => ListTile(
                                 title: Text(e.name),
-                                subtitle:
-                                    Text(e.url),
+                                subtitle: Text(e.url),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -474,10 +478,10 @@ class _SubmissionManagerState extends State<SubmissionManager> {
                                           showDialog(
                                             context: context,
                                             builder: (context) =>
-                                                AlertDialog(
-                                              title: Text('同意申请失败'),
-                                              content: Text(e.toString()),
-                                            ),
+                                                PkuReaderAlert(
+                                                    title: '同意申请失败',
+                                                    e: e,
+                                                    context: context),
                                           );
                                         }
                                         setState(() {
@@ -487,10 +491,10 @@ class _SubmissionManagerState extends State<SubmissionManager> {
                                     ),
                                     SizedBox(width: 4.0),
                                     IconButton(
+                                      splashRadius: 0.001,
                                       icon: const Icon(
-                                        Icons.clear,
-                                        color: AppTheme.pkuReaderPurple,
-                                      ),
+                                          CupertinoIcons.xmark_circle_fill,
+                                          color: Colors.grey),
                                       onPressed: () async {
                                         try {
                                           await user.rejectPending(e);
@@ -498,10 +502,10 @@ class _SubmissionManagerState extends State<SubmissionManager> {
                                           showDialog(
                                             context: context,
                                             builder: (context) =>
-                                                AlertDialog(
-                                              title: Text('拒绝申请失败'),
-                                              content: Text(e.toString()),
-                                            ),
+                                                PkuReaderAlert(
+                                                    title: '拒绝申请失败',
+                                                    e: e,
+                                                    context: context),
                                           );
                                         }
                                         setState(() {
@@ -529,11 +533,11 @@ class _SubmissionManagerState extends State<SubmissionManager> {
   }
 }
 
-
 class GetAdminPage extends StatefulWidget {
   @override
   _GetAdminPageState createState() => _GetAdminPageState();
 }
+
 class _GetAdminPageState extends State<GetAdminPage> {
   final _pwdController = TextEditingController();
   String pwd;
@@ -559,12 +563,15 @@ class _GetAdminPageState extends State<GetAdminPage> {
                             suffixIcon: _pwdController.text.isEmpty
                                 ? null
                                 : IconButton(
-                                icon: Icon(Icons.clear),
-                                onPressed: () {
-                                  setState(() {
-                                    _pwdController.clear();
-                                  });
-                                })),
+                                    splashRadius: 0.001,
+                                    icon: const Icon(
+                                        CupertinoIcons.xmark_circle_fill,
+                                        color: Colors.grey),
+                                    onPressed: () {
+                                      setState(() {
+                                        _pwdController.clear();
+                                      });
+                                    })),
                         validator: (value) {
                           if (value.isEmpty) return '管理员密码不能为空';
                           return null;
@@ -586,9 +593,9 @@ class _GetAdminPageState extends State<GetAdminPage> {
                                 showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                      title: Text('异常'),
-                                      content: Text(e.toString()),
-                                    ));
+                                          title: Text('异常'),
+                                          content: Text(e.toString()),
+                                        ));
                               }
 
                               _key.currentState.reset();

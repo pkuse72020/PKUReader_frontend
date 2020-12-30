@@ -9,12 +9,14 @@ class HomeDrawer extends StatefulWidget {
       {Key key,
       this.screenIndex,
       this.iconAnimationController,
-      this.callBackIndex})
+      this.callBackIndex,
+      @required this.callback})
       : super(key: key);
 
   final AnimationController iconAnimationController;
   final DrawerIndex screenIndex;
   final Function(DrawerIndex) callBackIndex;
+  final VoidCallback callback;
 
   @override
   _HomeDrawerState createState() => _HomeDrawerState();
@@ -29,7 +31,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
   }
 
   void setDrawerListArray() {
-    if (user != null) {
+    if (user?.token != null) {
       drawerList = <DrawerList>[
         DrawerList(
           index: DrawerIndex.HOME,
@@ -72,14 +74,14 @@ class _HomeDrawerState extends State<HomeDrawer> {
       ];
     }
 
-    if (user != null && user.isAdmin != null && user.isAdmin)
+    if (user?.token != null && user.isAdmin != null && user.isAdmin)
       drawerList.add(DrawerList(
         index: DrawerIndex.SubmissionManager,
         labelName:
             '待处理申请 ', // A space is added due to the strange line wrapping
         icon: Icon(Icons.pending_actions),
       ));
-    /*if (user != null && user.isAdmin != null && !user.isAdmin)
+    /*if (user?.token != null && user.isAdmin != null && !user.isAdmin)
       drawerList.add(DrawerList(
         index: DrawerIndex.GetAdmin,
         labelName:
@@ -90,6 +92,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    setDrawerListArray();
     return Scaffold(
       backgroundColor: AppTheme.notWhite.withOpacity(0.5),
       body: Column(
@@ -137,7 +140,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                               icon: ClipRRect(
                                 borderRadius: const BorderRadius.all(
                                     Radius.circular(60.0)),
-                                child: user == null
+                                child: user?.token == null
                                     ? Icon(
                                         Icons.person,
                                         size: 140.0,
@@ -145,7 +148,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                                     : Image.asset(
                                         'assets/images/userImage.png'),
                               ),
-                              onPressed: user == null
+                              onPressed: user?.token == null
                                   ? () {
                                       Navigator.of(context).push(
                                           MaterialPageRoute(
@@ -163,7 +166,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8, left: 4),
                     child: Text(
-                      user == null ? '未登录' : user.userName,
+                      user?.token == null ? '未登录' : user.userName,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.grey,
@@ -193,14 +196,14 @@ class _HomeDrawerState extends State<HomeDrawer> {
             ),
           ),
           Opacity(
-            opacity: user == null ? 0.0 : 1.0,
+            opacity: user?.token == null ? 0.0 : 1.0,
             child: Divider(
               height: 1,
               color: AppTheme.grey.withOpacity(0.6),
             ),
           ),
           Opacity(
-            opacity: user == null ? 0.0 : 1.0,
+            opacity: user?.token == null ? 0.0 : 1.0,
             child: Column(
               children: <Widget>[
                 ListTile(
@@ -218,7 +221,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                     Icons.power_settings_new,
                     color: AppTheme.pkuReaderPurple,
                   ),
-                  onTap: user == null
+                  onTap: user?.token == null
                       ? null
                       : () {
                           showDialog(
@@ -236,7 +239,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                                           onPressed: () async {
                                             await Account.logOut();
                                             setState(() {
-                                              setDrawerListArray();
+                                              widget.callback();
                                             });
                                             if (widget.screenIndex ==
                                                 DrawerIndex.AccountManager)

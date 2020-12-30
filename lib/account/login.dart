@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../app_theme.dart';
 import 'register.dart';
@@ -14,7 +15,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
-  bool isAdmin=false;
+  bool isAdmin = false;
   String account = '', password = '';
   bool isObscure = true;
   bool isEmpty = false;
@@ -56,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
   void progressIndicator(bool status) {
     if (apiCall == true && status == false)
       Navigator.of(context, rootNavigator: true).pop();
@@ -193,17 +195,17 @@ class _LoginPageState extends State<LoginPage> {
 //              }
               //异步调用
               bool connected = true;
-              dynamic message='';
+              dynamic message = '';
               Future.delayed(Duration(seconds: 1),
                   () => Account.logIn(account, password)).catchError((e) {
-                message=e;
+                message = e;
                 connected = false;
               }).whenComplete(() {
                 progressIndicator(false);
                 if (connected) {
                   widget.callback();
                   Navigator.of(context).pop();
-                }else{
+                } else {
                   showAlertDialog(message);
                 }
               });
@@ -251,9 +253,9 @@ class _LoginPageState extends State<LoginPage> {
           labelText: '用户名',
           suffixIcon: (isEmpty)
               ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                  ),
+                  splashRadius: 0.001,
+                  icon: const Icon(CupertinoIcons.xmark_circle_fill,
+                      color: Colors.grey),
                   onPressed: () {
                     setState(() {
                       accountController.clear();
@@ -263,7 +265,8 @@ class _LoginPageState extends State<LoginPage> {
               : null),
     );
   }
-  Container selectAdmin(){
+
+  Container selectAdmin() {
     return Container(
       width: 300,
       height: 50,
@@ -275,56 +278,59 @@ class _LoginPageState extends State<LoginPage> {
         children: <Widget>[
           Expanded(
               child: Container(
-                decoration: (!isAdmin)
-                    ? BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(25),
-                  ),
-                  color: Colors.white,
-                ) : null,
-                child: Center(
-                  child: FlatButton(
-                    onPressed: () {
-                      setState(() {
-                        isAdmin=false;
-                        print(isAdmin);
-                      });
-                    },
-                    child: Text(
-                      "User",
-                      style: TextStyle(fontSize: 16),
+            decoration: (!isAdmin)
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(25),
                     ),
-                  ),
+                    color: Colors.white,
+                  )
+                : null,
+            child: Center(
+              child: FlatButton(
+                onPressed: () {
+                  setState(() {
+                    isAdmin = false;
+                    print(isAdmin);
+                  });
+                },
+                child: Text(
+                  "User",
+                  style: TextStyle(fontSize: 16),
                 ),
-              )),
+              ),
+            ),
+          )),
           Expanded(
               child: Container(
-                decoration: isAdmin
-                    ? BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(25),
-                  ),
-                  color: Colors.white,
-                ) : null,
-                child: Center(
-                  child: FlatButton(
-                    onPressed: () {
-                      setState(() {
-                        isAdmin=true;
-                        print(isAdmin);
-                      });
-                    },
-                    child: Text(
-                      "Admin",
-                      style: TextStyle(fontSize: 16),
+            decoration: isAdmin
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(25),
                     ),
-                  ),
+                    color: Colors.white,
+                  )
+                : null,
+            child: Center(
+              child: FlatButton(
+                onPressed: () {
+                  setState(() {
+                    isAdmin = true;
+                    print(isAdmin);
+                  });
+                },
+                child: Text(
+                  "Admin",
+                  style: TextStyle(fontSize: 16),
                 ),
-              )),
+              ),
+            ),
+          )),
         ],
       ),
     );
   }
+
   Widget buildTitle() {
     return Container(
       height: (MediaQuery.of(context).size.height -

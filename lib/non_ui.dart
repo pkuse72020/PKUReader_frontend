@@ -20,6 +20,7 @@ Box<Account> box;
 const String userBox = 'user_box_1';
 const timeout = Duration(seconds: 15);
 const wikiPos = 2;
+const defaultUserId = '0a46517c-4a50-11eb-a878-00163e0f2f21';
 
 const rootUrl = 'http://39.98.93.128:5000';
 const loginUrl = rootUrl + '/user/login';
@@ -305,7 +306,7 @@ class Account extends ChangeNotifier with HiveObject {
   /// Get news based on the user's subscriptions from the server.
   Future<void> getNews() async {
     final response = await http.post(getNewsUrl, headers: {
-      HttpHeaders.authorizationHeader: authHeader
+      HttpHeaders.authorizationHeader: token == null ? null : authHeader
     }, body: {
       'userid': userId,
     }).timeout(timeout);
@@ -317,7 +318,8 @@ class Account extends ChangeNotifier with HiveObject {
       final articleList = (json['article_list'] as Map<String, dynamic>)
           .values
           .map((e) => Article.fromJson(e))
-          .where((e) => !newsCache.any((element) => e.id == element.id)).toList();
+          .where((e) => !newsCache.any((element) => e.id == element.id))
+          .toList();
       for (var i = 0; i < articleList.length; i++)
         for (final keyword in articleList[i].keywords.keys)
           articleList[i].keywords[keyword] = await Article.getWiki(keyword);
@@ -331,7 +333,7 @@ class Account extends ChangeNotifier with HiveObject {
   /// Get articles from the server by searching a word.
   Future<void> getSearchedArticles() async {
     final response = await http.post(getSearchedArticlesUrl, headers: {
-      HttpHeaders.authorizationHeader: authHeader
+      HttpHeaders.authorizationHeader: token == null ? null : authHeader
     }, body: {
       'searchword': searchWord,
     }).timeout(timeout);
@@ -344,7 +346,8 @@ class Account extends ChangeNotifier with HiveObject {
       final articleList = (json['result'] as Map<String, dynamic>)
           .values
           .map((e) => Article.fromJson(e))
-          .where((e) => !newsCache.any((element) => e.id == element.id)).toList();
+          .where((e) => !newsCache.any((element) => e.id == element.id))
+          .toList();
       for (var i = 0; i < articleList.length; i++)
         for (final keyword in articleList[i].keywords.keys)
           articleList[i].keywords[keyword] = await Article.getWiki(keyword);
@@ -384,8 +387,8 @@ class Account extends ChangeNotifier with HiveObject {
             userName: userName,
             userId: jsonResponse["UserId"],
             isAdmin: jsonResponse["is_admin"],
-            searchWord: "北大"); // TODO Use the response to indicate the
-        // privilege.
+            searchWord: "北大",
+            newsCache: user.newsCache);
         user = account;
         await box.put('user', user);
         // await user.getNews();
@@ -402,7 +405,7 @@ class Account extends ChangeNotifier with HiveObject {
     var response = await http.post(registerUrl, body: body);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
-      //print(jsonResponse);
+      print(jsonResponse);
       String state = jsonResponse["state"];
       if (state != 'success') {
         throw new Exception(jsonResponse["description"]);
@@ -413,8 +416,8 @@ class Account extends ChangeNotifier with HiveObject {
   }
 
   static Future<void> logOut() async {
-    await box.delete('user');
-    user = null;
+    user = Account(userId: defaultUserId);
+    await box.put('user', user);
   }
 
   /// Restore the previous account state on the disk.
@@ -425,6 +428,11 @@ class Account extends ChangeNotifier with HiveObject {
     await Hive.initFlutter();
     box = await Hive.openBox<Account>(userBox);
     user = box.get('user');
+    if (user == null) {
+      user = Account(userId: defaultUserId);
+      await box.put('user', user);
+    }
+
     // Account example_account = Account(token: "example", userName: "PKUer", userId: "0100010");
     // user = example_account;
     // await box.put('user',user);

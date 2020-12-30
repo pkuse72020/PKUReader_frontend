@@ -26,7 +26,11 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
   void initState() {
     drawerIndex = DrawerIndex.HOME;
     // screenView = const MyHomePage();
-    screenView = new BrowseNews();
+    screenView = new BrowseNews(
+      callback: () {
+        setState(() {});
+      },
+    );
     super.initState();
   }
 
@@ -48,6 +52,15 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
             },
             screenView: screenView,
             //we replace screen view as we need on navigate starting screens like MyHomePage, HelpScreen, FeedbackScreen, etc...
+            callback: () {
+              setState(() {
+                screenView = BrowseNews(
+                  callback: () {
+                    setState(() {});
+                  },
+                );
+              });
+            },
           ),
         ),
       ),
@@ -61,10 +74,14 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
       if (drawerIndex == DrawerIndex.HOME) {
         setState(() {
           // screenView = const MyHomePage();
-          screenView = new BrowseNews();
+          screenView = new BrowseNews(
+            callback: () {
+              setState(() {});
+            },
+          );
         });
       } else if (drawerIndex == DrawerIndex.AccountManager) {
-        if (user == null) {
+        if (user?.token == null) {
           drawerIndex = oldIndex;
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => LoginPage(), fullscreenDialog: true));
@@ -89,7 +106,7 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
         setState(() {
           screenView = SubmissionManager();
         });
-      /*} else if (drawerIndex == DrawerIndex.GetAdmin) {
+        /*} else if (drawerIndex == DrawerIndex.GetAdmin) {
         setState(() {
           screenView = GetAdminPage();
         });*/

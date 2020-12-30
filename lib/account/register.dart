@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pkureader_frontend/app_theme.dart';
 import 'login.dart';
@@ -13,7 +14,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String account = '', password = '';
   bool isObscure = true;
   bool isEmpty = false;
-  bool apiCall=false;
+  bool apiCall = false;
   final accountController = TextEditingController();
   final pwdController = TextEditingController();
   final repwdController = TextEditingController();
@@ -177,16 +178,16 @@ class _RegisterPageState extends State<RegisterPage> {
               formKey.currentState.save();
               progressIndicator(true);
               bool connected = true;
-              dynamic message='';
+              dynamic message = '';
               Future.delayed(Duration(seconds: 1),
                   () => Account.register(account, password)).catchError((e) {
-                    message=e;
+                message = e;
                 connected = false;
               }).whenComplete(() {
                 progressIndicator(false);
                 if (connected) {
                   Navigator.of(context).pop();
-                }else {
+                } else {
                   showAlertDialog(message);
                 }
               });
@@ -260,9 +261,9 @@ class _RegisterPageState extends State<RegisterPage> {
           labelText: '用户名',
           suffixIcon: (isEmpty)
               ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                  ),
+                  splashRadius: 0.001,
+                  icon: const Icon(CupertinoIcons.xmark_circle_fill,
+                      color: Colors.grey),
                   onPressed: () {
                     setState(() {
                       accountController.clear();
