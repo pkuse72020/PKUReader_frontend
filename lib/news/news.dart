@@ -460,8 +460,9 @@ class _ReadNewsState extends State<ReadNews> {
                 onPressed: () async {
                   if (user?.token == null) {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            LoginPage(callback: widget.callback)));
+                        builder: (context) => LoginPage(callback: () {
+                              setState(() {});
+                            })));
                     return;
                   }
                   if (user.existArticle(widget.article))
