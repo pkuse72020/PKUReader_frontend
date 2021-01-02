@@ -474,21 +474,6 @@ class HtmlParser extends StatelessWidget {
       );
     } else if (tree is ReplacedElement) {
       if (tree is TextContentElement) {
-        // return TextSpan(text: tree.text);
-        // return TextSpan(
-        //   children:[
-        //     TextSpan(text:tree.text),
-        //     WidgetSpan(
-        //       child: IconButton(
-        //           icon:new Icon(Icons.add),
-        //           onPressed: (){print('click'+tree.text);},
-        //           )
-        //       )
-        //   ]
-        // );
-
-        // List<String> _textWords = List();
-        // _textWords = tree.text.split(" ");
         return getSpan(context.buildContext, tree.text, key_words_dict);
       } else {
         return WidgetSpan(

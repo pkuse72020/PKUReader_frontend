@@ -27,7 +27,6 @@ class About extends StatelessWidget {
           ),
         ),
         backgroundColor: AppTheme.notWhite
-        // backgroundColor: Colors.grey,
         );
   }
 }

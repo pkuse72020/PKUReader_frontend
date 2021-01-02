@@ -365,21 +365,18 @@ class Account extends ChangeNotifier with HiveObject {
     final encrypter = Encrypter(RSA(publicKey: publicKey));
 
     final encrypted = encrypter.encrypt(test);
-    //print(encrypted.base64);
     return encrypted.base64;
   }
 
   static void logIn(String userName, String password) async {
     String pwd = await getPublicKey(password);
     String uName = await getPublicKey(userName);
-    // TODO Implement this.
     var body = {"username": uName, "password": pwd};
     var response = await http.post(loginUrl, body: body);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
       String state = jsonResponse["state"];
       if (state != 'success') {
-        //print(jsonResponse["description"]);
         throw new Exception(jsonResponse["description"]);
       } else {
         Account account = Account(

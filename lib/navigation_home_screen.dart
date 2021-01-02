@@ -2,11 +2,8 @@ import 'package:pkureader_frontend/news/news.dart';
 
 import 'about.dart';
 import 'app_theme.dart';
-import 'home_screen.dart';
 import 'package:pkureader_frontend/drawer/drawer_user_controller.dart';
 import 'package:pkureader_frontend/drawer/home_drawer.dart';
-import 'package:pkureader_frontend/drawer/feedback_screen.dart';
-import 'package:pkureader_frontend/drawer/help_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'account/account_manager.dart';
@@ -25,7 +22,6 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
   @override
   void initState() {
     drawerIndex = DrawerIndex.HOME;
-    // screenView = const MyHomePage();
     screenView = new BrowseNews(
       callback: () {
         setState(() {});
@@ -73,7 +69,6 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
       drawerIndex = drawerIndexdata;
       if (drawerIndex == DrawerIndex.HOME) {
         setState(() {
-          // screenView = const MyHomePage();
           screenView = new BrowseNews(
             callback: () {
               setState(() {});
@@ -106,10 +101,6 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
         setState(() {
           screenView = SubmissionManager();
         });
-        /*} else if (drawerIndex == DrawerIndex.GetAdmin) {
-        setState(() {
-          screenView = GetAdminPage();
-        });*/
       }
     }
   }

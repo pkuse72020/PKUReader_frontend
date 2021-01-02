@@ -3,11 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// import 'account_manager.dart';
-// import 'hlnews.dart';
-// import 'news.dart';
-// import 'util.dart';
-// import 'test_page.dart';
 import 'non_ui.dart';
 import 'app_theme.dart';
 import 'navigation_home_screen.dart';
@@ -35,32 +30,9 @@ class PkuReader extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: AppTheme.pkuReaderPurpleMaterial,
         textTheme: AppTheme.textTheme,
-        // platform: TargetPlatform.iOS,
       ),
       home: NavigationHomeScreen(),
     );
-    // return Scaffold(
-    //   appBar: AppBar(title: Text('PKU Reader')),
-    //   body: ListView(
-    //     children: [
-    //       newPageListItem(context, 'Test', Test()),
-    //       newPageListItem(
-    //           context,
-    //           '帐户管理',
-    //           AccountManager(
-    //             user: user,
-    //           )),
-    //       newPageListItem(context, '新闻浏览', BrowseNews()),
-    //       newPageListItem(
-    //           context,
-    //           '新闻阅读',
-    //           ReadNews(
-    //             title: '阔别900余天，图书馆东楼今日重启',
-    //           )),
-    //       newPageListItem(context, '有知识的新闻阅读', HLNews())
-    //     ],
-    //   ),
-    // );
   }
 }
 

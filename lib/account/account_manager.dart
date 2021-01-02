@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pkureader_frontend/app_theme.dart';
 
-import '../local.dart';
 import '../news/news.dart';
 import '../non_ui.dart';
 import '../util.dart';
@@ -223,8 +222,6 @@ class NewSubscrPage extends StatefulWidget {
 class _NewSubscrPageState extends State<NewSubscrPage> {
   final controller = TextEditingController();
 
-  // TODO Consider using separate classes for subsciptions and favorite
-  // articles.
   Future<Iterable<Source>> srcList = Source.getAllSources();
 
   @override
@@ -587,7 +584,6 @@ class _GetAdminPageState extends State<GetAdminPage> {
                               _key.currentState.save();
 
                               try {
-                                //TODO:implement this
                                 //await user.submit(sourceName, url);
                               } catch (e) {
                                 showDialog(

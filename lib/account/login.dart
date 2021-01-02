@@ -102,22 +102,15 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                // padding: EdgeInsets.symmetric(horizontal: 22.0),
                 children: <Widget>[
-                  // SizedBox(
-                  //   height: kToolbarHeight,
-                  // ),
                   Hero(tag: 'logo', child: buildTitle()),
-                  //Hero(tag: 'isAdmin',child:selectAdmin()),
                   Hero(
                       tag: 'user_name', child: Material(child: buildAccount())),
-                  // SizedBox(height: 30.0),
                   Hero(
                       tag: 'password',
                       child: Material(child: buildPassword(context))),
                   SizedBox(),
                   Hero(tag: 'button', child: buildLoginButton(context)),
-                  // SizedBox(height: 10.0),
                   buildRegister(context),
                 ],
               ),
@@ -186,13 +179,6 @@ class _LoginPageState extends State<LoginPage> {
             if (formKey.currentState.validate()) {
               formKey.currentState.save();
               progressIndicator(true);
-              //同步调用
-//              try{
-//                Account.logIn(account,password);
-//              }
-//              catch(e){
-//                print(e.toString());
-//              }
               //异步调用
               bool connected = true;
               dynamic message = '';
