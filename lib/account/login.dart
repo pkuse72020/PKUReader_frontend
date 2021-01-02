@@ -15,7 +15,6 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
-  bool isAdmin = false;
   String account = '', password = '';
   bool isObscure = true;
   bool isEmpty = false;
@@ -41,11 +40,11 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       child: new AlertDialog(
-        title: Text("Failed"),
+        title: Text('Failed'),
         content: Text(description.toString()),
         actions: [
           new FlatButton(
-              child: const Text("Ok"),
+              child: const Text('Ok'),
               onPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
                 setState(() {
@@ -82,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     new CircularProgressIndicator(),
-                    new Text("Loading"),
+                    new Text('Loading'),
                   ],
                 ),
               )),
@@ -249,71 +248,6 @@ class _LoginPageState extends State<LoginPage> {
                     });
                   })
               : null),
-    );
-  }
-
-  Container selectAdmin() {
-    return Container(
-      width: 300,
-      height: 50,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(25)),
-        color: Color(0x552B2B2B),
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-              child: Container(
-            decoration: (!isAdmin)
-                ? BoxDecoration(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(25),
-                    ),
-                    color: Colors.white,
-                  )
-                : null,
-            child: Center(
-              child: FlatButton(
-                onPressed: () {
-                  setState(() {
-                    isAdmin = false;
-                    print(isAdmin);
-                  });
-                },
-                child: Text(
-                  "User",
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          )),
-          Expanded(
-              child: Container(
-            decoration: isAdmin
-                ? BoxDecoration(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(25),
-                    ),
-                    color: Colors.white,
-                  )
-                : null,
-            child: Center(
-              child: FlatButton(
-                onPressed: () {
-                  setState(() {
-                    isAdmin = true;
-                    print(isAdmin);
-                  });
-                },
-                child: Text(
-                  "Admin",
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          )),
-        ],
-      ),
     );
   }
 

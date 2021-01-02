@@ -192,7 +192,7 @@ class _SubscrManagerState extends State<SubscrManager> {
       ),
       nextPageIcon: widget.type == SubscrType.rss ? Icons.add : null,
       nextPage: widget.type == SubscrType.rss
-          ? NewSubscrPage(SubscrType.rss, () {
+          ? NewSubscrPage(() {
               setState(() {});
             })
           : null,
@@ -204,16 +204,9 @@ class _SubscrManagerState extends State<SubscrManager> {
 ///
 /// This page is used to explore and subscribe to new pages.
 class NewSubscrPage extends StatefulWidget {
-  /// The subscription type.
-  ///
-  /// If the instance handles RSS source subscriptions, it has the value
-  /// [SubscrType.rss]. Otherwise, it handles favorite articles, and has the
-  /// value [SubscrType.article].
-  final type;
-
   final Function callback;
 
-  NewSubscrPage(this.type, this.callback);
+  NewSubscrPage(this.callback);
 
   @override
   _NewSubscrPageState createState() => _NewSubscrPageState();
@@ -242,87 +235,63 @@ class _NewSubscrPageState extends State<NewSubscrPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      isPushed: true,
-      name: widget.type == SubscrType.rss ? '订阅新 RSS 源' : '收藏新文章',
-      middle: Container(
-        padding: EdgeInsets.all(8.0),
-        child: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-              hintText: '搜索',
-              icon: const Icon(Icons.search),
-              suffixIcon: controller.text.isEmpty
-                  ? null
-                  : IconButton(
-                      splashRadius: 0.001,
-                      icon: const Icon(CupertinoIcons.xmark_circle_fill,
-                          color: Colors.grey),
-                      onPressed: () => controller.clear(),
-                    )),
+        isPushed: true,
+        name: '订阅新 RSS 源',
+        middle: Container(
+          padding: EdgeInsets.all(8.0),
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+                hintText: '搜索',
+                icon: const Icon(Icons.search),
+                suffixIcon: controller.text.isEmpty
+                    ? null
+                    : IconButton(
+                        splashRadius: 0.001,
+                        icon: const Icon(CupertinoIcons.xmark_circle_fill,
+                            color: Colors.grey),
+                        onPressed: () => controller.clear(),
+                      )),
+          ),
         ),
-      ),
-      body: widget.type == SubscrType.rss
-          ? FutureBuilder(
-              future: srcList,
-              builder: (context, AsyncSnapshot<Iterable<Source>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasError)
-                    return Center(child: Text(snapshot.error.toString()));
-                  return ListView(
-                      children: snapshot.data
-                          .where((element) => !user.hasSource(element))
-                          .where((element) => element.name
-                              .toLowerCase()
-                              .contains(controller.text.toLowerCase()))
-                          .map((e) => ListTile(
-                                title: Text(e.name),
-                                subtitle: Text(e.url),
-                                onTap: () async {
-                                  try {
-                                    await user.addSource(e);
-                                  } catch (e) {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) => PkuReaderAlert(
-                                            title: 'RSS 源获取失败',
-                                            e: e,
-                                            context: context));
-                                  }
-                                  setState(() {});
-                                  widget.callback();
-                                },
-                              ))
-                          .toList());
-                } else {
-                  return Stack(
-                    alignment: Alignment.center,
-                    children: [SizedBox.expand(), CircularProgressIndicator()],
-                  );
-                }
-              })
-          : ListView(
-              children: user.newsCache
-                  .where((element) => !user.favArticles.contains(element))
-                  .where((element) => element.title.contains(controller.text))
-                  .map((e) => ListTile(
-                        title: Text(e.title),
-                        onTap: () async {
-                          try {
-                            await user.addArticle(e);
-                          } catch (e) {
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                      title: Text('异常'),
-                                      content: Text(e.toString()),
-                                    ));
-                          }
-                          setState(() {});
-                          widget.callback();
-                        },
-                      ))
-                  .toList()),
-    );
+        body: FutureBuilder(
+            future: srcList,
+            builder: (context, AsyncSnapshot<Iterable<Source>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasError)
+                  return Center(child: Text(snapshot.error.toString()));
+                return ListView(
+                    children: snapshot.data
+                        .where((element) => !user.hasSource(element))
+                        .where((element) => element.name
+                            .toLowerCase()
+                            .contains(controller.text.toLowerCase()))
+                        .map((e) => ListTile(
+                              title: Text(e.name),
+                              subtitle: Text(e.url),
+                              onTap: () async {
+                                try {
+                                  await user.addSource(e);
+                                } catch (e) {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => PkuReaderAlert(
+                                          title: 'RSS 源获取失败',
+                                          e: e,
+                                          context: context));
+                                }
+                                setState(() {});
+                                widget.callback();
+                              },
+                            ))
+                        .toList());
+              } else {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [SizedBox.expand(), CircularProgressIndicator()],
+                );
+              }
+            }));
   }
 }
 
@@ -527,81 +496,5 @@ class _SubmissionManagerState extends State<SubmissionManager> {
                 );
               }
             }));
-  }
-}
-
-class GetAdminPage extends StatefulWidget {
-  @override
-  _GetAdminPageState createState() => _GetAdminPageState();
-}
-
-class _GetAdminPageState extends State<GetAdminPage> {
-  final _pwdController = TextEditingController();
-  String pwd;
-  final _key = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomScaffold(
-        isPushed: false,
-        name: '获得管理员权限',
-        height: 240.0,
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Center(
-              child: Form(
-                  key: _key,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _pwdController,
-                        decoration: InputDecoration(
-                            labelText: '管理员密码',
-                            suffixIcon: _pwdController.text.isEmpty
-                                ? null
-                                : IconButton(
-                                    splashRadius: 0.001,
-                                    icon: const Icon(
-                                        CupertinoIcons.xmark_circle_fill,
-                                        color: Colors.grey),
-                                    onPressed: () {
-                                      setState(() {
-                                        _pwdController.clear();
-                                      });
-                                    })),
-                        validator: (value) {
-                          if (value.isEmpty) return '管理员密码不能为空';
-                          return null;
-                        },
-                        onSaved: (newValue) => pwd = newValue,
-                        onChanged: (str) {
-                          setState(() {});
-                        },
-                      ),
-                      TextButton(
-                          onPressed: () async {
-                            if (_key.currentState.validate()) {
-                              _key.currentState.save();
-
-                              try {
-                                //await user.submit(sourceName, url);
-                              } catch (e) {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                          title: Text('异常'),
-                                          content: Text(e.toString()),
-                                        ));
-                              }
-
-                              _key.currentState.reset();
-                              _pwdController.clear();
-                            }
-                          },
-                          child: Text('提交'))
-                    ],
-                    mainAxisSize: MainAxisSize.min,
-                  ))),
-        ));
   }
 }

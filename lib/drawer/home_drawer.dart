@@ -372,18 +372,12 @@ class _HomeDrawerState extends State<HomeDrawer> {
 
 enum DrawerIndex {
   HOME,
-  FeedBack,
-  Help,
-  Share,
   About,
-  Invite,
-  Testing,
   AccountManager,
   RssSources,
   FavArticles,
   Post,
   SubmissionManager,
-  GetAdmin
 }
 
 class DrawerList {

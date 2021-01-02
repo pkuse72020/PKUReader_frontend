@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +7,9 @@ import 'package:flutter_html/style.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pkureader_frontend/account/login.dart';
 import 'package:pkureader_frontend/app_theme.dart';
-import 'package:pkureader_frontend/test/test_page.dart';
 import 'package:pkureader_frontend/util.dart';
 
 import '../non_ui.dart';
-import '../main.dart';
 
 class BrowseNews extends StatefulWidget {
   final VoidCallback callback;
@@ -24,9 +21,8 @@ class BrowseNews extends StatefulWidget {
 }
 
 class _BrowseNewsState extends State<BrowseNews> {
-  // final controller = TextEditingController();
   final _searchController = TextEditingController();
-  // String searchWord;
+
   @override
   void dispose() {
     super.dispose();
@@ -200,7 +196,7 @@ class _BrowseNewsState extends State<BrowseNews> {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  content: Text("未搜索到结果！"),
+                                  content: Text('未搜索到结果！'),
                                 ),
                               );
                             }
@@ -267,33 +263,6 @@ class _BrowseNewsState extends State<BrowseNews> {
   }
 }
 
-class HighlightedWord {
-  final TextStyle textStyle;
-  final VoidCallback onTap;
-
-  HighlightedWord({
-    @required this.onTap,
-    this.textStyle = const TextStyle(
-      color: Colors.red,
-    ),
-  });
-}
-
-class HighlightMap {
-  LinkedHashMap<String, HighlightedWord> _hashMap = LinkedHashMap(
-    equals: (a, b) => a.toLowerCase() == b.toLowerCase(),
-    hashCode: (a) => a.toLowerCase().hashCode,
-  );
-
-  HighlightMap(Map<String, HighlightedWord> myMap) {
-    myMap.forEach((k, v) {
-      _hashMap[k] = v;
-    });
-  }
-
-  get getMap => _hashMap;
-}
-
 class ReadNews extends StatefulWidget {
   final Article article;
   final callback;
@@ -313,114 +282,10 @@ class _ReadNewsState extends State<ReadNews> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text("Ok"),
+          child: Text('Ok'),
         )
       ],
     );
-  }
-
-  HighlightedWord getHighlightedWord(context, textStyle, word, explanation) {
-    return HighlightedWord(
-      onTap: () {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return getAlertDialog(context, word, explanation);
-            });
-      },
-      textStyle: textStyle,
-    );
-  }
-
-  Map<String, HighlightedWord> getKeyWordsMap(context, textStyle) {
-    Map<String, HighlightedWord> myMap = new Map<String, HighlightedWord>();
-    for (var key_word in widget.article.keywords.keys) {
-      myMap[key_word] = getHighlightedWord(
-          context, textStyle, key_word, widget.article.keywords[key_word]);
-    }
-    return myMap;
-  }
-
-  ///fucntion for building TextSpan for text
-  TextSpan buildSpan(
-      BuildContext context,
-      String full_text,
-      key_words_list,
-      LinkedHashMap<String, HighlightedWord> hash_map,
-      TextStyle defaultStyle,
-      var to_default) {
-    if (full_text.length == 0) return TextSpan(text: "");
-    for (var key_word in key_words_list) {
-      if (full_text.length < key_word.length) continue;
-      String comp = full_text.substring(0, key_word.length);
-      if (comp == key_word) {
-        return TextSpan(
-          text: comp,
-          style: hash_map[comp].textStyle,
-          children: [
-            // TextSpan(
-            //   text: " ",
-            //   style: defaultStyle,
-            // ),
-            buildSpan(
-                context,
-                full_text.substring(comp.length, full_text.length),
-                key_words_list,
-                hash_map,
-                defaultStyle,
-                1),
-          ],
-          recognizer: TapGestureRecognizer()
-            ..onTap = () => hash_map[comp].onTap(),
-        );
-      }
-    }
-    return TextSpan(
-      text: full_text.characters.first,
-      // style: the_words.containsKey(currentWord)
-      //     ? the_words[currentWord].textStyle
-      //     : defaultStyle,
-      style: to_default == 1 ? defaultStyle : null,
-      children: [
-        buildSpan(
-            context,
-            full_text.substring(
-                full_text.characters.first.length, full_text.length),
-            key_words_list,
-            hash_map,
-            defaultStyle,
-            0),
-      ],
-      recognizer: null,
-    );
-  }
-
-  TextSpan getSpan(BuildContext context, String full_text, full_dict) {
-    TextStyle textStyle = TextStyle(
-      color: Colors.blueAccent,
-      fontSize: 16.5,
-    );
-    TextStyle defaultStyle = TextStyle(
-      color: Colors.black54,
-      fontSize: 16.5,
-    );
-    Map<String, HighlightedWord> key_words_map =
-        getKeyWordsMap(context, textStyle);
-    HighlightMap highlightMap = HighlightMap(key_words_map);
-    final LinkedHashMap<String, HighlightedWord> hash_map = highlightMap.getMap;
-    final max_length = 100;
-    List<TextSpan> text_children = [];
-    for (int i = 0; i < full_text.length; i += max_length) {
-      final end_idx =
-          i + max_length < full_text.length ? i + max_length : full_text.length;
-      text_children.add(buildSpan(context, full_text.substring(i, end_idx),
-          full_dict.keys, hash_map, defaultStyle, 1));
-    }
-    return TextSpan(
-      children: text_children,
-    );
-    // return buildSpan(
-    // context, full_text.substring(0,max_length), full_dict.keys, hash_map, defaultStyle, 1);
   }
 
   //mainImage
@@ -480,8 +345,7 @@ class _ReadNewsState extends State<ReadNews> {
 
   //Bottom Sheet Content
 
-  Widget bottomContent(height, width, need_hl, context) =>
-      new SingleChildScrollView(
+  Widget bottomContent(height, width, context) => new SingleChildScrollView(
         child: Container(
           margin: EdgeInsets.only(top: height / 30),
           width: width,
@@ -492,7 +356,7 @@ class _ReadNewsState extends State<ReadNews> {
               children: <Widget>[
                 //Category
                 Text(
-                  "文章详情",
+                  '文章详情',
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -505,7 +369,7 @@ class _ReadNewsState extends State<ReadNews> {
 
                 //Title
                 Text(
-                  widget.article?.title ?? "",
+                  widget.article?.title ?? '',
                   style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
@@ -517,29 +381,16 @@ class _ReadNewsState extends State<ReadNews> {
                 ),
 
                 //Paragraph
-                need_hl == 1
-                    ? Html(
-                        data: widget.article.content,
-                        key_words_dict: widget.article.keywords,
-                        style: {
-                          'html': Style(
-                            fontSize: const FontSize(16.5),
-                            color: Colors.black54,
-                          )
-                        },
-                      )
-                    // ? Text.rich(getSpan(context, widget.article.content,
-                    //     widget.article.keywords))
-                    : Text(
-                        widget.article.content ?? "",
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16.5,
-                          // height: 1.4
-                        ),
-                        textAlign: TextAlign.left,
-                        // maxLines: 8,
-                      ),
+                Html(
+                  data: widget.article.content,
+                  key_words_dict: widget.article.keywords,
+                  style: {
+                    'html': Style(
+                      fontSize: const FontSize(16.5),
+                      color: Colors.black54,
+                    )
+                  },
+                )
               ],
             ),
           ),
@@ -572,7 +423,7 @@ class _ReadNewsState extends State<ReadNews> {
                 ),
 
                 // child: bottomContent(height, width),
-                child: bottomContent(height, width, 1, context)),
+                child: bottomContent(height, width, context)),
           ],
         ),
       ),

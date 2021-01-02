@@ -37,11 +37,11 @@ class _RegisterPageState extends State<RegisterPage> {
     showDialog(
       context: context,
       child: new AlertDialog(
-        title: Text("Failed"),
+        title: Text('Failed'),
         content: Text(description.toString()),
         actions: [
           new FlatButton(
-              child: const Text("Ok"),
+              child: const Text('Ok'),
               onPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
                 setState(() {
@@ -79,7 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     new CircularProgressIndicator(),
-                    new Text("Loading"),
+                    new Text('Loading'),
                   ],
                 ),
               )),

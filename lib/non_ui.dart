@@ -6,8 +6,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 import 'package:encrypt/encrypt.dart';
-import 'package:encrypt/encrypt_io.dart';
-import 'package:pointycastle/asymmetric/api.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 part 'non_ui.g.dart';
@@ -371,20 +369,20 @@ class Account extends ChangeNotifier with HiveObject {
   static void logIn(String userName, String password) async {
     String pwd = await getPublicKey(password);
     String uName = await getPublicKey(userName);
-    var body = {"username": uName, "password": pwd};
+    var body = {'username': uName, 'password': pwd};
     var response = await http.post(loginUrl, body: body);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
-      String state = jsonResponse["state"];
+      String state = jsonResponse['state'];
       if (state != 'success') {
-        throw new Exception(jsonResponse["description"]);
+        throw new Exception(jsonResponse['description']);
       } else {
         Account account = Account(
-            token: jsonResponse["token"],
+            token: jsonResponse['token'],
             userName: userName,
-            userId: jsonResponse["UserId"],
-            isAdmin: jsonResponse["is_admin"],
-            searchWord: "北大",
+            userId: jsonResponse['UserId'],
+            isAdmin: jsonResponse['is_admin'],
+            searchWord: '北大',
             newsCache: user.newsCache);
         user = account;
         await box.put('user', user);
@@ -398,16 +396,16 @@ class Account extends ChangeNotifier with HiveObject {
   static void register(String userName, String password) async {
     String pwd = await getPublicKey(password);
     String uName = await getPublicKey(userName);
-    var body = {"username": uName, "password": pwd};
+    var body = {'username': uName, 'password': pwd};
     var response = await http.post(registerUrl, body: body);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
       print(jsonResponse);
-      String state = jsonResponse["state"];
+      String state = jsonResponse['state'];
       if (state != 'success') {
-        throw new Exception(jsonResponse["description"]);
+        throw new Exception(jsonResponse['description']);
       } else {
-        print(jsonResponse["UserId"]);
+        print(jsonResponse['UserId']);
       }
     }
   }
@@ -429,10 +427,6 @@ class Account extends ChangeNotifier with HiveObject {
       user = Account(userId: defaultUserId);
       await box.put('user', user);
     }
-
-    // Account example_account = Account(token: "example", userName: "PKUer", userId: "0100010");
-    // user = example_account;
-    // await box.put('user',user);
   }
 }
 
